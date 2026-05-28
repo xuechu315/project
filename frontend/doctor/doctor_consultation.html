@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>辅助诊疗建议 - 多银龄守护</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+<div class="flex min-h-screen">
+<!-- 侧边导航 (复用同上) -->
+<aside class="w-64 bg-[#1e40af] text-white flex flex-col fixed h-full">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+<iconify-icon class="text-[#1e40af] text-2xl" icon="solar:medical-kit-bold"></iconify-icon>
+</div>
+<span class="text-xl font-bold">HealthAgent+</span>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all" href="doctor_dashboard.html">
+<iconify-icon class="text-xl" icon="solar:widget-5-bold"></iconify-icon>
+<span>医生工作站</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all" href="doctor_patient_detail.html">
+<iconify-icon class="text-xl" icon="solar:users-group-rounded-bold"></iconify-icon>
+<span>签约老人管理</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl" href="doctor_health_trends.html">
+<iconify-icon class="text-xl" icon="solar:graph-bold"></iconify-icon>
+<span>健康趋势分析</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-xl border-l-4 border-white shadow-sm transition-all" href="doctor_consultation.html">
+<iconify-icon class="text-xl" icon="solar:clipboard-list-bold"></iconify-icon>
+<span class="font-medium">辅助诊疗建议</span>
+</a>
+</nav>
+</aside>
+<!-- 主内容区 -->
+<main class="ml-64 flex-1 p-8">
+<header class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-2xl font-bold text-slate-800 italic underline decoration-blue-500 decoration-4 underline-offset-8">多智能体决策咨询 (AI-Doctor Panel)</h1>
+<p class="text-slate-500 mt-4">系统基于 EMR 档案与实时传感器数据生成的最新临床建议</p>
+</div>
+<div class="flex items-center gap-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+<div class="w-10 h-10 bg-[#1e40af] rounded-full flex items-center justify-center text-white">
+<iconify-icon class="text-xl" icon="solar:magic-stick-3-bold"></iconify-icon>
+</div>
+<div>
+<p class="text-xs font-bold text-[#1e40af]">Agent 状态</p>
+<p class="text-sm font-bold">深度推理引擎在线 (v4.2)</p>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-8">
+<!-- 核心：异常识别与推理逻辑 -->
+<div class="col-span-8 space-y-8">
+<section class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+<h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+<iconify-icon class="text-red-600 text-2xl" icon="solar:bill-check-bold"></iconify-icon>
+                            当前需紧急复核的异常逻辑
+                        </h3>
+<div class="p-6 bg-red-50/50 border border-red-100 rounded-3xl">
+<div class="flex justify-between items-start mb-4">
+<div>
+<span class="px-2 py-0.5 bg-red-600 text-white text-[10px] font-bold rounded">冲突判定：高优先级</span>
+<h4 class="text-xl font-bold text-slate-800 mt-2">疑似“摔倒后短暂昏迷”识别路径</h4>
+</div>
+<p class="text-xs text-slate-400">检测时间: 2026-04-28 10:24:12</p>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="w-1 h-12 bg-red-200 rounded-full shrink-0"></div>
+<p class="text-sm text-slate-600 leading-relaxed italic">
+                                        “行为分析 Agent 检测到 Z 轴加速度突变为 4.2g（匹配跌倒模式），随后 120 秒内身体动作为 0。同时健康监测 Agent 反馈心率由 112bpm（应激）突降至 58bpm（疑似休克先兆）。”
+                                    </p>
+</div>
+<div class="flex gap-4 pt-4 border-t border-red-100">
+<div class="flex-1 bg-white p-3 rounded-xl border border-red-100">
+<p class="text-[10px] text-slate-400 font-bold mb-1 uppercase">确定性 (Confidence)</p>
+<p class="text-lg font-bold text-red-600 italic">0.968</p>
+</div>
+<div class="flex-1 bg-white p-3 rounded-xl border border-red-100">
+<p class="text-[10px] text-slate-400 font-bold mb-1 uppercase">响应时长 (Latency)</p>
+<p class="text-lg font-bold text-slate-800 italic">1.2 s</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+<h3 class="font-bold text-lg mb-6">推荐诊疗/随访方案</h3>
+<div class="space-y-6">
+<div class="flex gap-6 p-6 rounded-2xl bg-blue-50/30 border border-slate-50">
+<div class="w-12 h-12 bg-blue-100 text-[#1e40af] rounded-2xl flex items-center justify-center shrink-0">
+<iconify-icon class="text-3xl" icon="solar:pill-bold-duotone"></iconify-icon>
+</div>
+<div>
+<h4 class="font-bold text-slate-800 mb-1">药物调整建议 (Medication)</h4>
+<p class="text-sm text-slate-600 mb-3 leading-relaxed">基于患者近期血糖波动，建议将 <span class="font-bold text-[#1e40af]">二甲双胍</span> 的单次剂量从 500mg 增加至 850mg，或增加一次睡前中效胰岛素监测。</p>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-white border border-slate-200 text-xs text-slate-500 rounded">禁忌：严重心力衰竭</span>
+<span class="px-2 py-1 bg-white border border-slate-200 text-xs text-slate-500 rounded">推荐证据：GRADE A</span>
+</div>
+</div>
+</div>
+<div class="flex gap-6 p-6 rounded-2xl bg-orange-50/30 border border-slate-50">
+<div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center shrink-0">
+<iconify-icon class="text-3xl" icon="solar:user-speak-bold-duotone"></iconify-icon>
+</div>
+<div>
+<h4 class="font-bold text-slate-800 mb-1">社区随访要点 (Follow-up)</h4>
+<p class="text-sm text-slate-600 leading-relaxed italic">“本次出院后需在 48 小时内完成首次入户随访。重点检查老人居住环境的防滑措施，并重新评估助行器的稳定性。”</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- 右侧：知识库引用与操作 -->
+<div class="col-span-4 space-y-8">
+<div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+<h3 class="font-bold mb-6 flex items-center gap-2">
+<iconify-icon class="text-blue-600" icon="solar:book-2-bold"></iconify-icon>
+                            关联医学知识库
+                        </h3>
+<div class="space-y-4">
+<a class="block p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all border border-slate-100" href="#">
+<p class="text-sm font-bold text-slate-800">《老年人高血压合并糖尿病管理指南》</p>
+<p class="text-[10px] text-slate-400 mt-1">2026 最新修订版 · 第 4 章：血糖波动控制</p>
+</a>
+<a class="block p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-all border border-slate-100" href="#">
+<p class="text-sm font-bold text-slate-800">《独居老人跌倒后综合征的早期识别》</p>
+<p class="text-[10px] text-slate-400 mt-1">社区医生口袋手册 · 快速索引</p>
+</a>
+</div>
+</div>
+<div class="bg-slate-900 p-8 rounded-3xl text-white shadow-2xl">
+<h3 class="text-xl font-bold mb-6">确认诊疗决策</h3>
+<p class="text-sm text-slate-400 mb-8 leading-relaxed">您的确认将同步至“家属端”与“老人端”，并更新至电子病历库。请复核以上建议。</p>
+<div class="space-y-4">
+<button class="w-full py-4 bg-[#1e40af] text-white rounded-2xl font-bold shadow-lg shadow-blue-900 hover:bg-blue-700 transition-all">
+                                采纳 AI 建议并下发任务
+                            </button>
+<button class="w-full py-4 bg-white/10 text-white/70 rounded-2xl font-bold hover:bg-white/20 transition-all">
+                                手动修正方案
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body>
+</html>

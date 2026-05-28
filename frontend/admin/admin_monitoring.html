@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>健康监测与异常识别 - 多智能体健康监护系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 flex min-h-screen overflow-hidden">
+<!-- 侧边导航 (同首页) -->
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
+<iconify-icon class="text-2xl" icon="solar:health-bold"></iconify-icon>
+</div>
+<span class="text-xl font-bold tracking-tight text-slate-800">HealthAgent+</span>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_index.html">
+<iconify-icon class="text-xl" icon="solar:home-2-bold"></iconify-icon>
+<span>仪表盘首页</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold" href="admin_monitoring.html">
+<iconify-icon class="text-xl" icon="solar:pulse-bold"></iconify-icon>
+<span>监测与识别</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_conflict.html">
+<iconify-icon class="text-xl" icon="solar:shield-warning-bold"></iconify-icon>
+<span>冲突处理</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_emergency.html">
+<iconify-icon class="text-xl" icon="solar:map-point-wave-bold"></iconify-icon>
+<span>应急响应</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_knowledge.html">
+<iconify-icon class="text-xl" icon="solar:database-bold"></iconify-icon>
+<span>知识共享池</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_notifications.html">
+<iconify-icon class="text-xl" icon="solar:bell-bing-bold"></iconify-icon>
+<span>通知服务</span>
+</a>
+<div class="pt-8 pb-4">
+<p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">系统管理</p>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_profile.html">
+<iconify-icon class="text-xl" icon="solar:user-circle-bold"></iconify-icon>
+<span>个人中心</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_settings.html">
+<iconify-icon class="text-xl" icon="solar:settings-bold"></iconify-icon>
+<span>系统设置</span>
+</a>
+</nav>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<header class="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+<div>
+<h2 class="text-xl font-bold text-slate-800">监测与识别中心</h2>
+<p class="text-xs text-slate-500 mt-1">实时传感器流分析与智能体协同识别日志</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-blue-100 flex items-center gap-2">
+<iconify-icon icon="solar:playback-speed-bold"></iconify-icon>
+                    开启一键演示
+                </button>
+</div>
+</header>
+<div class="p-8 grid grid-cols-1 xl:grid-cols-4 gap-8">
+<!-- 左侧：实时传感器流 -->
+<div class="xl:col-span-1 space-y-6">
+<div class="bg-slate-900 text-white p-6 rounded-3xl shadow-xl overflow-hidden relative">
+<div class="absolute top-0 right-0 p-4 opacity-20">
+<iconify-icon class="text-6xl" icon="solar:cpu-bold"></iconify-icon>
+</div>
+<h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">实时传感器流</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-end border-b border-slate-800 pb-2">
+<div>
+<p class="text-[10px] text-slate-500">心率 (PPG)</p>
+<p class="text-2xl font-mono text-blue-400">72 bpm</p>
+</div>
+<div class="h-8 w-24" id="stream-hr"></div>
+</div>
+<div class="flex justify-between items-end border-b border-slate-800 pb-2">
+<div>
+<p class="text-[10px] text-slate-500">血氧 (SpO2)</p>
+<p class="text-2xl font-mono text-green-400">98%</p>
+</div>
+<div class="h-8 w-24" id="stream-oxy"></div>
+</div>
+<div class="flex justify-between items-end border-b border-slate-800 pb-2">
+<div>
+<p class="text-[10px] text-slate-500">体动 (G-Sensor)</p>
+<p class="text-2xl font-mono text-orange-400">0.02 g</p>
+</div>
+<div class="h-8 w-24" id="stream-g"></div>
+</div>
+</div>
+<p class="text-[10px] text-slate-600 mt-4 flex items-center gap-1">
+<span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></span>
+                        数据采集频率: 100Hz
+                    </p>
+</div>
+<div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+<h3 class="text-sm font-bold mb-4">智能体分析权重</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1">
+<span>健康监测 Agent (阈值判定)</span>
+<span>85%</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-blue-500 h-full w-[85%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1">
+<span>行为分析 Agent (模式识别)</span>
+<span>15%</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-purple-500 h-full w-[15%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 中间：大图表 -->
+<div class="xl:col-span-3 space-y-8">
+<div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="text-lg font-bold">生理特征识别模型 (实时预览)</h3>
+<p class="text-sm text-slate-500">当前正在通过 CNN-BiLSTM 识别老人的动态心率模式</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-lg uppercase tracking-wider">神经网络加速中</span>
+</div>
+</div>
+<div class="h-[300px] w-full" id="ai-model-chart"></div>
+</div>
+<!-- 识别日志 -->
+<div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+<div class="px-8 py-6 border-b border-slate-50 flex items-center justify-between">
+<h3 class="font-bold">协同识别日志 (最近 1 小时)</h3>
+<button class="text-blue-600 text-xs font-bold hover:underline">导出 CSV</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+<tr>
+<th class="px-8 py-4">时间戳</th>
+<th class="px-4 py-4">识别主体</th>
+<th class="px-4 py-4">事件描述</th>
+<th class="px-4 py-4">置信度</th>
+<th class="px-4 py-4">判定状态</th>
+<th class="px-8 py-4">操作</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-slate-50">
+<tr>
+<td class="px-8 py-4 text-slate-400 font-mono">10:14:22</td>
+<td class="px-4 py-4 font-bold text-blue-600">健康监测 Agent</td>
+<td class="px-4 py-4 text-slate-600">检测到心率轻微偏移 (88bpm)</td>
+<td class="px-4 py-4">0.992</td>
+<td class="px-4 py-4">
+<span class="bg-green-100 text-green-600 px-2 py-0.5 rounded text-[10px] font-bold">正常</span>
+</td>
+<td class="px-8 py-4">
+<button class="text-slate-400 hover:text-blue-600"><iconify-icon icon="solar:document-text-bold"></iconify-icon></button>
+</td>
+</tr>
+<tr>
+<td class="px-8 py-4 text-slate-400 font-mono">09:58:10</td>
+<td class="px-4 py-4 font-bold text-purple-600">行为分析 Agent</td>
+<td class="px-4 py-4 text-slate-600">久坐不动 (已持续 120min)</td>
+<td class="px-4 py-4">0.874</td>
+<td class="px-4 py-4">
+<span class="bg-amber-100 text-amber-600 px-2 py-0.5 rounded text-[10px] font-bold">待关注</span>
+</td>
+<td class="px-8 py-4">
+<button class="text-slate-400 hover:text-blue-600"><iconify-icon icon="solar:document-text-bold"></iconify-icon></button>
+</td>
+</tr>
+<tr class="bg-red-50/30">
+<td class="px-8 py-4 text-slate-400 font-mono">09:12:05</td>
+<td class="px-4 py-4 font-bold text-red-600">多智能体协同</td>
+<td class="px-4 py-4 text-slate-800 font-bold">摔倒风险预警：高度匹配跌倒模式</td>
+<td class="px-4 py-4">0.968</td>
+<td class="px-4 py-4">
+<span class="bg-red-500 text-white px-2 py-0.5 rounded text-[10px] font-bold">紧急</span>
+</td>
+<td class="px-8 py-4">
+<a class="text-red-500 font-bold hover:underline" href="admin_conflict.html">处理中 →</a>
+</td>
+</tr>
+<!-- 填充更多行 -->
+<tr>
+<td class="px-8 py-4 text-slate-400 font-mono">08:50:00</td>
+<td class="px-4 py-4 font-bold text-blue-600">健康监测 Agent</td>
+<td class="px-4 py-4 text-slate-600">起床体征变化同步</td>
+<td class="px-4 py-4">1.000</td>
+<td class="px-4 py-4">
+<span class="bg-green-100 text-green-600 px-2 py-0.5 rounded text-[10px] font-bold">正常</span>
+</td>
+<td class="px-8 py-4">
+<button class="text-slate-400 hover:text-blue-600"><iconify-icon icon="solar:document-text-bold"></iconify-icon></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const modelChart = echarts.init(document.getElementById('ai-model-chart'));
+            const data = [];
+            for (let i = 0; i < 50; i++) {
+                data.push(Math.sin(i / 5) * 10 + Math.random() * 5 + 70);
+            }
+            modelChart.setOption({
+                grid: { top: 20, right: 20, bottom: 20, left: 40 },
+                xAxis: { type: 'category', boundaryGap: false, show: false },
+                yAxis: { type: 'value', min: 60, max: 90, splitLine: { lineStyle: { color: '#F1F5F9' } } },
+                series: [{
+                    data: data,
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'none',
+                    lineStyle: { width: 3, color: '#3B82F6' },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(59, 130, 246, 0.4)' },
+                            { offset: 1, color: 'rgba(59, 130, 246, 0)' }
+                        ])
+                    }
+                }]
+            });
+
+            // 迷你流动画模拟
+            const createMiniChart = (id, color) => {
+                const chart = echarts.init(document.getElementById(id));
+                const d = Array.from({length: 10}, () => Math.random() * 10);
+                chart.setOption({
+                    xAxis: { show: false, type: 'category' },
+                    yAxis: { show: false, type: 'value' },
+                    grid: { top: 0, bottom: 0, left: 0, right: 0 },
+                    series: [{ data: d, type: 'line', smooth: true, symbol: 'none', lineStyle: { width: 2, color: color } }]
+                });
+            };
+            createMiniChart('stream-hr', '#60A5FA');
+            createMiniChart('stream-oxy', '#34D399');
+            createMiniChart('stream-g', '#FBBF24');
+        });
+    </script>
+</body>
+</html>
