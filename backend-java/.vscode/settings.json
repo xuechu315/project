@@ -1,0 +1,7 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "maven.executable.path": "mvn",
+    "java.home": "E:\\jdk17",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "spring-boot.ls.java.home": "E:\\jdk17"
+}

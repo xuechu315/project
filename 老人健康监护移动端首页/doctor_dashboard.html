@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>医生工作站 - 多银龄守护</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+<div class="flex min-h-screen">
+<!-- 侧边导航栏 -->
+<aside class="w-64 bg-[#1e40af] text-white flex flex-col fixed h-full">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+<iconify-icon class="text-[#1e40af] text-2xl" icon="solar:medical-kit-bold"></iconify-icon>
+</div>
+<span class="text-xl font-bold tracking-tight">HealthAgent+</span>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-xl border-l-4 border-white shadow-sm transition-all" href="doctor_dashboard.html">
+<iconify-icon class="text-xl" icon="solar:widget-5-bold"></iconify-icon>
+<span class="font-medium">医生工作站</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all" href="doctor_patient_detail.html">
+<iconify-icon class="text-xl" icon="solar:users-group-rounded-bold"></iconify-icon>
+<span>签约老人管理</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all" href="doctor_health_trends.html">
+<iconify-icon class="text-xl" icon="solar:graph-bold"></iconify-icon>
+<span>健康趋势分析</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all" href="doctor_consultation.html">
+<iconify-icon class="text-xl" icon="solar:clipboard-list-bold"></iconify-icon>
+<span>辅助诊疗建议</span>
+</a>
+</nav>
+<div class="p-6 border-t border-white/10">
+<div class="flex items-center gap-3 mb-6">
+<img alt="Doctor Avatar" class="w-10 h-10 rounded-full border-2 border-white/20" src="https://modao.cc/agent-py/media/generated_images/2026-04-28/5babafdd480d4f388443a64e1a0dd8f0.jpg"/>
+<div>
+<p class="text-sm font-bold text-white">王建国 医生</p>
+<p class="text-xs text-white/60">中心医院/全科</p>
+</div>
+</div>
+<button class="w-full py-2 bg-white/10 hover:bg-red-500/20 text-white/70 hover:text-red-300 rounded-lg flex items-center justify-center gap-2 transition-all">
+<iconify-icon icon="solar:logout-3-bold"></iconify-icon>
+<span class="text-sm">退出登录</span>
+</button>
+</div>
+</aside>
+<!-- 主内容区 -->
+<main class="ml-64 flex-1 p-8">
+<!-- 顶部栏 -->
+<header class="flex justify-between items-center mb-8">
+<div>
+<h1 class="text-2xl font-bold text-slate-800">医生工作站概览</h1>
+<p class="text-slate-500 mt-1">今天是 2026年04月28日 · 星期二</p>
+</div>
+<div class="flex gap-4">
+<div class="relative">
+<input class="w-72 pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1e40af] outline-none" placeholder="搜索老人姓名/身份证..." type="text"/>
+<iconify-icon class="absolute left-3 top-3 text-slate-400" icon="solar:magnifer-linear"></iconify-icon>
+</div>
+<button class="px-4 py-2 bg-[#1e40af] text-white rounded-xl shadow-lg shadow-blue-200 flex items-center gap-2">
+<iconify-icon icon="solar:add-circle-bold"></iconify-icon>
+<span>新增签约老人</span>
+</button>
+</div>
+</header>
+<!-- 统计卡片 -->
+<div class="grid grid-cols-4 gap-6 mb-8">
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-blue-600 text-2xl" icon="solar:user-bold"></iconify-icon>
+</div>
+<span class="px-2 py-1 bg-green-50 text-green-600 text-xs font-bold rounded">+3 本周</span>
+</div>
+<p class="text-slate-500 text-sm">总签约老人</p>
+<h3 class="text-3xl font-bold mt-1">128 <span class="text-sm font-normal text-slate-400">人</span></h3>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-red-600 text-2xl" icon="solar:danger-bold"></iconify-icon>
+</div>
+<span class="px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded animate-pulse">4 待处理</span>
+</div>
+<p class="text-slate-500 text-sm">今日危急告警</p>
+<h3 class="text-3xl font-bold mt-1 text-red-600">07 <span class="text-sm font-normal text-slate-400">例</span></h3>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-orange-600 text-2xl" icon="solar:chat-round-dots-bold"></iconify-icon>
+</div>
+<span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs font-bold rounded">2 紧急</span>
+</div>
+<p class="text-slate-500 text-sm">未读咨询建议</p>
+<h3 class="text-3xl font-bold mt-1">15 <span class="text-sm font-normal text-slate-400">条</span></h3>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
+<iconify-icon class="text-indigo-600 text-2xl" icon="solar:folder-check-bold"></iconify-icon>
+</div>
+<span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded">100% 完成</span>
+</div>
+<p class="text-slate-500 text-sm">今日巡检任务</p>
+<h3 class="text-3xl font-bold mt-1">24 <span class="text-sm font-normal text-slate-400">项</span></h3>
+</div>
+</div>
+<!-- 老人列表展示 -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+<div class="p-6 border-b border-slate-100 flex justify-between items-center">
+<h2 class="text-lg font-bold">重点关注签约老人 (实时监控)</h2>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-slate-100 rounded-lg text-slate-400"><iconify-icon icon="solar:refresh-linear"></iconify-icon></button>
+<button class="p-2 hover:bg-slate-100 rounded-lg text-slate-400"><iconify-icon icon="solar:settings-linear"></iconify-icon></button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50 text-slate-500 text-sm uppercase">
+<tr>
+<th class="px-6 py-4 font-semibold">姓名 / 编号</th>
+<th class="px-6 py-4 font-semibold">健康状态</th>
+<th class="px-6 py-4 font-semibold">实时心率/血压</th>
+<th class="px-6 py-4 font-semibold">最后更新</th>
+<th class="px-6 py-4 font-semibold">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<!-- 老人 1 -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full border border-slate-200" src="/agent-py/static/source/images/placeholder.svg"/>
+<div>
+<p class="font-bold">张大山</p>
+<p class="text-xs text-slate-400">ID: SG-2026-0012</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full border border-red-200">
+<span class="w-2 h-2 bg-red-600 rounded-full animate-ping"></span>
+                                        危急告警 (疑似摔倒)
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div>
+<p class="text-sm font-bold text-red-600 italic">112 bpm</p>
+<p class="text-[10px] text-slate-400">心率过速</p>
+</div>
+<div class="w-[1px] h-8 bg-slate-100"></div>
+<div>
+<p class="text-sm font-bold">142/95 mmHg</p>
+<p class="text-[10px] text-slate-400">血压偏高</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">刚刚</td>
+<td class="px-6 py-4">
+<a class="px-4 py-1.5 bg-[#1e40af] text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-100" href="doctor_patient_detail.html">查看详情</a>
+</td>
+</tr>
+<!-- 老人 2 -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full border border-slate-200" src="/agent-py/static/source/images/placeholder.svg"/>
+<div>
+<p class="font-bold">王美莲</p>
+<p class="text-xs text-slate-400">ID: SG-2026-0045</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-600 text-xs font-bold rounded-full">
+<span class="w-2 h-2 bg-green-600 rounded-full"></span>
+                                        正常监护中
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div>
+<p class="text-sm font-bold">72 bpm</p>
+<p class="text-[10px] text-slate-400">正常</p>
+</div>
+<div class="w-[1px] h-8 bg-slate-100"></div>
+<div>
+<p class="text-sm font-bold">126/82 mmHg</p>
+<p class="text-[10px] text-slate-400">正常</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">3 分钟前</td>
+<td class="px-6 py-4">
+<a class="px-4 py-1.5 bg-[#1e40af] text-white text-xs font-bold rounded-lg" href="doctor_patient_detail.html">查看详情</a>
+</td>
+</tr>
+<!-- 更多数据项 -->
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full border border-slate-200" src="/agent-py/static/source/images/placeholder.svg"/>
+<div>
+<p class="font-bold">李福荣</p>
+<p class="text-xs text-slate-400">ID: SG-2026-0128</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1.5 px-3 py-1 bg-orange-100 text-orange-600 text-xs font-bold rounded-full">
+<span class="w-2 h-2 bg-orange-600 rounded-full"></span>
+                                        指标异常预警
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4 text-orange-600">
+<div>
+<p class="text-sm font-bold">58 bpm</p>
+<p class="text-[10px] text-slate-400">心率偏低</p>
+</div>
+<div class="w-[1px] h-8 bg-slate-100"></div>
+<div>
+<p class="text-sm font-bold">138/88 mmHg</p>
+<p class="text-[10px] text-slate-400">临界高压</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">10 分钟前</td>
+<td class="px-6 py-4">
+<button class="px-4 py-1.5 bg-[#1e40af] text-white text-xs font-bold rounded-lg">查看详情</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 font-medium">
+<p>显示 1 - 3 / 共 128 名老人</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50"><iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon></button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#1e40af] text-white">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50"><iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body>
+</html>

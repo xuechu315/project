@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>系统设置 - 多智能体健康监护系统</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 flex min-h-screen overflow-hidden">
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+<iconify-icon class="text-2xl" icon="solar:health-bold"></iconify-icon>
+</div>
+<span class="text-xl font-bold tracking-tight text-slate-800">HealthAgent+</span>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_index.html">
+<iconify-icon class="text-xl" icon="solar:home-2-bold"></iconify-icon>
+<span>仪表盘首页</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_monitoring.html">
+<iconify-icon class="text-xl" icon="solar:pulse-bold"></iconify-icon>
+<span>监测与识别</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_conflict.html">
+<iconify-icon class="text-xl" icon="solar:shield-warning-bold"></iconify-icon>
+<span>冲突处理</span>
+<span class="ml-auto bg-red-100 text-red-600 text-[10px] px-1.5 py-0.5 rounded-full">2</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_emergency.html">
+<iconify-icon class="text-xl" icon="solar:map-point-wave-bold"></iconify-icon>
+<span>应急响应</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_knowledge.html">
+<iconify-icon class="text-xl" icon="solar:database-bold"></iconify-icon>
+<span>知识共享池</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_notifications.html">
+<iconify-icon class="text-xl" icon="solar:bell-bing-bold"></iconify-icon>
+<span>通知服务</span>
+</a>
+<div class="pt-8 pb-4">
+<p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">系统管理</p>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_profile.html">
+<iconify-icon class="text-xl" icon="solar:user-circle-bold"></iconify-icon>
+<span>个人中心</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold" href="admin_settings.html">
+<iconify-icon class="text-xl" icon="solar:settings-bold"></iconify-icon>
+<span>系统设置</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-100">
+<a class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all" href="login.html">
+<iconify-icon class="text-xl" icon="solar:logout-bold"></iconify-icon>
+<span class="font-semibold">退出系统</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+<header class="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+<div>
+<h2 class="text-xl font-bold text-slate-800">系统配置与设置</h2>
+<p class="text-xs text-slate-500 mt-1">配置 Agent 运行参数、传感器阈值及通知频率</p>
+</div>
+</header>
+<div class="p-8 max-w-5xl mx-auto space-y-8">
+<!-- 传感器阈值设置 -->
+<section class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center"><iconify-icon class="text-2xl" icon="solar:tuning-square-bold"></iconify-icon></div>
+<h3 class="text-lg font-bold">监护报警阈值配置 (Thresholds)</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div>
+<label class="block text-sm font-bold text-slate-700 mb-4">心率预警区间 (BPM)</label>
+<div class="flex items-center gap-4">
+<input class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500" type="number" value="40"/>
+<span class="text-slate-400">至</span>
+<input class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500" type="number" value="120"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-700 mb-4">血压正常范围 (收缩压 mmHg)</label>
+<div class="flex items-center gap-4">
+<input class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500" type="number" value="90"/>
+<span class="text-slate-400">至</span>
+<input class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500" type="number" value="140"/>
+</div>
+</div>
+</div>
+</section>
+<!-- 智能体采集频率 -->
+<section class="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><iconify-icon class="text-2xl" icon="solar:clocks-bold"></iconify-icon></div>
+<h3 class="text-lg font-bold">多智能体运行频率 (Agent Ticks)</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between py-4 border-b border-slate-50">
+<div>
+<p class="text-sm font-bold">实时体征数据上报</p>
+<p class="text-xs text-slate-400">健康监测 Agent 每一周期上报一次数据的频率</p>
+</div>
+<select class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
+<option>10 秒/次 (默认)</option>
+<option>1 分钟/次</option>
+<option>5 分钟/次</option>
+</select>
+</div>
+<div class="flex items-center justify-between py-4 border-b border-slate-50">
+<div>
+<p class="text-sm font-bold">告警推送重试间隔</p>
+<p class="text-xs text-slate-400">家属通知 Agent 在未获得确认时的重复通知间隔</p>
+</div>
+<select class="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
+<option>3 分钟/次</option>
+<option selected="">5 分钟/次 (默认)</option>
+</select>
+</div>
+</div>
+</section>
+<!-- 操作审计日志 -->
+<section class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+<div class="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+<h3 class="font-bold">近期系统操作审计</h3>
+<button class="text-xs text-blue-600 font-bold">查看完整日志</button>
+</div>
+<div class="p-4 space-y-3">
+<div class="text-xs flex gap-4 text-slate-500">
+<span class="font-mono w-32">2026-04-14 10:10</span>
+<span class="font-bold text-slate-700">Admin</span>
+<span>修改了“收缩压”报警上限 (135 -&gt; 140)</span>
+</div>
+<div class="text-xs flex gap-4 text-slate-500">
+<span class="font-mono w-32">2026-04-14 09:12</span>
+<span class="font-bold text-red-600">SYSTEM</span>
+<span>触发应急响应 A 类自动流程</span>
+</div>
+<div class="text-xs flex gap-4 text-slate-500">
+<span class="font-mono w-32">2026-04-13 22:45</span>
+<span class="font-bold text-slate-700">Admin</span>
+<span>备份了知识共享池 (Knowledge Pool) 数据包</span>
+</div>
+</div>
+</section>
+<div class="flex justify-end gap-4">
+<button class="px-8 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl transition-all">重置为默认</button>
+<button class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-200 transition-all">保存配置变更</button>
+</div>
+</div>
+</main>
+</body>
+</html>
