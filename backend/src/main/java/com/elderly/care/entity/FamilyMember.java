@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class FamilyMember {
 
     private Integer id;
+    private Integer userId;
     private Integer elderId;
     private String name;
     private String relationship;

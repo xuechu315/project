@@ -20,7 +20,7 @@ public interface DoctorMapper {
     @Select("SELECT * FROM doctor WHERE name LIKE CONCAT('%', #{name}, '%')")
     List<Doctor> findByNameContaining(String name);
     
-    @Insert("INSERT INTO doctor(name, phone, department) VALUES(#{name}, #{phone}, #{department})")
+    @Insert("INSERT INTO doctor(user_id, name, phone, department) VALUES(#{userId}, #{name}, #{phone}, #{department})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Doctor doctor);
     

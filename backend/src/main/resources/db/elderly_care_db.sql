@@ -27,11 +27,13 @@ CREATE TABLE `user` (
 -- 2. 医生表
 CREATE TABLE `doctor` (
     `id` INT NOT NULL AUTO_INCREMENT COMMENT '医生ID',
+    `user_id` INT NULL COMMENT '关联的用户ID',
     `name` VARCHAR(20) NOT NULL COMMENT '姓名',
     `phone` VARCHAR(20) NOT NULL COMMENT '联系电话',
     `department` VARCHAR(50) NULL COMMENT '所属科室',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='医生表';
 
 -- =====================================================
@@ -41,13 +43,15 @@ CREATE TABLE `doctor` (
 -- 3. 家属成员表（先创建，因为 elder 表会引用它）
 CREATE TABLE `family_member` (
     `id` INT NOT NULL AUTO_INCREMENT COMMENT '家属ID',
-    `elder_id` INT NOT NULL COMMENT '关联的老人ID',
+    `user_id` INT NULL COMMENT '关联的用户ID',
+    `elder_id` INT NULL COMMENT '关联的老人ID',
     `name` VARCHAR(20) NOT NULL COMMENT '家属姓名',
     `relationship` VARCHAR(20) NULL COMMENT '关系（子女/配偶等）',
     `phone` VARCHAR(20) NOT NULL COMMENT '联系电话',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (`id`),
-    KEY `idx_elder_id` (`elder_id`)
+    KEY `idx_elder_id` (`elder_id`),
+    KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='家属成员表';
 
 -- 4. 老人表（引用 user 和 family_member）
@@ -75,6 +79,16 @@ CREATE TABLE `elder` (
 -- 为 family_member 表添加外键约束
 ALTER TABLE `family_member` ADD CONSTRAINT `fk_family_member_elder_id` 
     FOREIGN KEY (`elder_id`) REFERENCES `elder` (`id`) ON DELETE CASCADE;
+
+-- 为 doctor 和 family_member 添加与 user 表的外键关联
+ALTER TABLE `doctor` ADD CONSTRAINT `fk_doctor_user_id` 
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL;
+
+ALTER TABLE `family_member` ADD CONSTRAINT `fk_family_member_user_id` 
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL;
+
+-- 兼容已有数据库：允许 elder_id 为空（取消关联时清空）
+ALTER TABLE `family_member` MODIFY COLUMN `elder_id` INT NULL COMMENT '关联的老人ID';
 
 -- =====================================================
 -- 第四阶段：创建依赖 elder 和 doctor 的关联表
@@ -205,23 +219,28 @@ INSERT INTO `user` (`username`, `password`, `user_type`, `name`, `phone`) VALUES
 ('liuying', '123456', 'elder', '刘英', '13800000005'),
 ('lisong', '123456', 'family', '李松', '13800000002'),
 ('wangjing', '123456', 'doctor', '王静', '13800000003'),
-('admin', '123456', 'admin', '系统管理员', '13800000000');
+('admin', '123456', 'admin', '系统管理员', '13800000000'),
+-- 补全缺失的用户账户
+('zhaojianguo', '123456', 'doctor', '赵建国', '13800000004'),
+('zhangli', '123456', 'family', '张丽', '13900000001'),
+('zhangqiang', '123456', 'family', '张强', '13900000002'),
+('liujianguo', '123456', 'family', '刘建国', '13900000003');
 
--- 2. 插入医生数据
-INSERT INTO `doctor` (`name`, `phone`, `department`) VALUES
-('王静', '13800000003', '心血管内科'),
-('赵建国', '13800000004', '全科医学科');
+-- 2. 插入医生数据（关联对应用户）
+INSERT INTO `doctor` (`user_id`, `name`, `phone`, `department`) VALUES
+(4, '王静', '13800000003', '心血管内科'),
+(6, '赵建国', '13800000004', '全科医学科');
 
 -- 3. 插入老人表（emergency_contact_id 先设为 NULL）
 INSERT INTO `elder` (`user_id`, `age`, `gender`, `blood_type`, `height`, `weight`, `emergency_contact_id`) VALUES
 (1, 78, '男', 'O型', 172.0, 70.0, NULL),
 (2, 72, '女', 'A型', 158.0, 62.0, NULL);
 
--- 4. 插入家属（关联 elder_id）
-INSERT INTO `family_member` (`elder_id`, `name`, `relationship`, `phone`) VALUES
-(1, '张丽', '女儿', '13900000001'),
-(1, '张强', '儿子', '13900000002'),
-(2, '刘建国', '儿子', '13900000003');
+-- 4. 插入家属（关联 elder_id 和 user_id）
+INSERT INTO `family_member` (`user_id`, `elder_id`, `name`, `relationship`, `phone`) VALUES
+(7, 1, '张丽', '女儿', '13900000001'),
+(8, 1, '张强', '儿子', '13900000002'),
+(9, 2, '刘建国', '儿子', '13900000003');
 
 -- 5. 更新老人的紧急联系人
 UPDATE `elder` SET `emergency_contact_id` = 1 WHERE `id` = 1;
@@ -270,3 +289,18 @@ INSERT INTO `medication_record` (`medication_id`, `taken_at`, `status`) VALUES
 INSERT INTO `emergency_response` (`id`, `event_id`, `ambulance_id`, `eta`, `distance`, `status`, `dispatched_at`) VALUES
 ('EMP20260527001', 2, '沪A-1234', 480, 3.2, 'ARRIVED', DATE_SUB(NOW(), INTERVAL 2 HOUR) + INTERVAL 1 MINUTE),
 ('EMP20260527002', 1, NULL, NULL, NULL, 'DISPATCH', NOW());
+
+-- =====================================================
+-- 第五阶段：系统操作日志表（持久化）
+-- =====================================================
+
+-- 13. 操作日志表
+CREATE TABLE `operation_log` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '日志ID',
+    `operator` VARCHAR(50) NOT NULL COMMENT '操作人',
+    `operation` VARCHAR(500) NOT NULL COMMENT '操作描述',
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '操作时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_created_at` (`created_at`),
+    KEY `idx_operator` (`operator`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统操作日志表';

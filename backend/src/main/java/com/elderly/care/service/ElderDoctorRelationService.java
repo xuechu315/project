@@ -1,6 +1,7 @@
 package com.elderly.care.service;
 
 import com.elderly.care.entity.ElderDoctorRelation;
+import com.elderly.care.exception.DuplicateResourceException;
 import com.elderly.care.mapper.ElderDoctorRelationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,14 @@ public class ElderDoctorRelationService {
 
     @Transactional
     public ElderDoctorRelation createRelation(ElderDoctorRelation relation) {
+        // 检查是否已存在相同的关联，防止重复绑定
+        if (relation.getElderId() != null && relation.getDoctorId() != null) {
+            ElderDoctorRelation existing = relationMapper.findByElderIdAndDoctorId(
+                    relation.getElderId(), relation.getDoctorId());
+            if (existing != null) {
+                throw new DuplicateResourceException("该医生已与该老人关联，请勿重复绑定");
+            }
+        }
         relationMapper.insert(relation);
         return relation;
     }

@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class FamilyMemberDTO {
     private Integer id;
+    private Integer userId;
     
-    @NotNull(message = "老人ID不能为空")
     private Integer elderId;
     
     @NotBlank(message = "家属姓名不能为空")

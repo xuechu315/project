@@ -1,13 +1,15 @@
 package com.elderly.care.service;
 
-import com.elderly.care.entity.FamilyMember;
-import com.elderly.care.mapper.FamilyMemberMapper;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.elderly.care.entity.FamilyMember;
+import com.elderly.care.mapper.FamilyMemberMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +22,16 @@ public class FamilyMemberService {
         return familyMemberMapper.findByElderId(elderId);
     }
 
+    public List<FamilyMember> getAllFamilyMembers() {
+        return familyMemberMapper.findAll();
+    }
+
     public Optional<FamilyMember> getFamilyMemberById(Integer id) {
         return Optional.ofNullable(familyMemberMapper.findById(id));
+    }
+    
+    public Optional<FamilyMember> getFamilyMemberByUserId(Integer userId) {
+        return Optional.ofNullable(familyMemberMapper.findByUserId(userId));
     }
 
     @Transactional
@@ -40,6 +50,11 @@ public class FamilyMemberService {
         familyMember.setName(familyMemberDetails.getName());
         familyMember.setRelationship(familyMemberDetails.getRelationship());
         familyMember.setPhone(familyMemberDetails.getPhone());
+        if (familyMemberDetails.getElderId() != null) {
+            familyMember.setElderId(familyMemberDetails.getElderId());
+        } else {
+            familyMember.setElderId(null);
+        }
         
         familyMemberMapper.update(familyMember);
         return familyMember;

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class Doctor {
 
     private Integer id;
+    private Integer userId;
     private String name;
     private String phone;
     private String department;

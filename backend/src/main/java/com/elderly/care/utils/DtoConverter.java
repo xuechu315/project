@@ -44,6 +44,7 @@ public class DtoConverter {
         if (familyMember == null) return null;
         return new FamilyMemberDTO(
                 familyMember.getId(),
+                familyMember.getUserId(),
                 familyMember.getElderId(),
                 familyMember.getName(),
                 familyMember.getRelationship(),

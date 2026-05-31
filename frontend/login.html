@@ -31,7 +31,7 @@
 
 <form class="space-y-5" onsubmit="return false;">
 <div>
-<label class="block text-sm font-medium text-slate-700 mb-1.5">账号 / 手机号</label>
+<label class="block text-sm font-medium text-slate-700 mb-1.5">账号</label>
 <div class="relative">
 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
 <iconify-icon icon="solar:user-circle-bold"></iconify-icon>
@@ -51,22 +51,12 @@
 </button>
 </div>
 </div>
-<div class="flex items-center justify-between">
-<label class="flex items-center gap-2 cursor-pointer group">
-<input class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox"/>
-<span class="text-sm text-slate-500 group-hover:text-slate-700">记住我</span>
-</label>
-<a class="text-sm font-semibold text-blue-600 hover:text-blue-700" href="#">忘记密码？</a>
-</div>
+
 <button class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-200 text-center transform transition-active active:scale-95" id="login-btn">
                     立即登录
                 </button>
 </form>
-<div class="mt-8 pt-6 border-t border-slate-100 text-center">
-<p class="text-sm text-slate-500">
-                    还没有账号？ <a class="text-blue-600 font-bold hover:underline" href="#">联系管理员开通</a>
-</p>
-</div>
+
 </div>
 </div>
 <script>
@@ -119,7 +109,7 @@
                     let targetUrl = '';
                     switch(user.userType) {
                         case 'admin':
-                            targetUrl = './admin/admin_index.html';
+                            targetUrl = './admin/admin_user_pairs.html';
                             break;
                         case 'doctor':
                             targetUrl = './doctor/doctor_dashboard.html';

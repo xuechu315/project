@@ -105,7 +105,7 @@ const UserAuth = {
 
         switch(userType) {
             case 'admin':
-                targetUrl = '../admin/admin_index.html';
+                targetUrl = '../admin/admin_user_pairs.html';
                 break;
             case 'doctor':
                 targetUrl = '../doctor/doctor_dashboard.html';

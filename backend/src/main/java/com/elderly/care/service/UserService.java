@@ -1,12 +1,17 @@
 package com.elderly.care.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.elderly.care.dto.LoginRequestDTO;
 import com.elderly.care.dto.LoginResponseDTO;
 import com.elderly.care.entity.User;
 import com.elderly.care.mapper.UserMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -56,5 +61,36 @@ public class UserService {
      */
     public User getUserById(Integer id) {
         return userMapper.findById(id);
+    }
+
+    @Transactional
+    public User createUser(User user) {
+        // note: password should be hashed in production
+        userMapper.insert(user);
+        return user;
+    }
+
+    /**
+     * 获取所有用户
+     */
+    public List<User> getAllUsers() {
+        return userMapper.findAll();
+    }
+
+    /**
+     * 更新用户
+     */
+    @Transactional
+    public User updateUser(User user) {
+        userMapper.update(user);
+        return user;
+    }
+
+    /**
+     * 删除用户
+     */
+    @Transactional
+    public void deleteUser(Integer id) {
+        userMapper.deleteById(id);
     }
 }
