@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>新增用户 - 管理后台</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<script src="../js/auth.js"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 flex h-screen overflow-hidden">
+
+<aside class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
+  <div class="p-6 flex items-center gap-3">
+    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+      <iconify-icon class="text-2xl" icon="solar:health-bold"></iconify-icon>
+    </div>
+    <div class="flex flex-col leading-tight">
+      <span class="text-lg font-bold text-slate-800">多银龄守护系统</span>
+      <span class="text-xs font-semibold text-blue-600">管理员中心</span>
+    </div>
+  </div>
+  <nav class="flex-1 px-4 space-y-1 overflow-y-auto mt-4">
+    <div class="pt-8 pb-4">
+      <p class="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">系统管理</p>
+    </div>
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_user_management.html">
+      <iconify-icon class="text-xl" icon="solar:users-group-rounded-bold"></iconify-icon>
+      <span>用户管理</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_user_pairs.html">
+      <iconify-icon class="text-xl" icon="solar:link-bold"></iconify-icon>
+      <span>用户关系配对</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-all" href="admin_operation_logs.html">
+      <iconify-icon class="text-xl" icon="solar:document-bold"></iconify-icon>
+      <span>系统操作日志</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-600 rounded-xl font-bold" href="admin_add_user.html">
+      <iconify-icon class="text-xl" icon="solar:user-plus-bold"></iconify-icon>
+      <span>新增用户</span>
+    </a>
+  </nav>
+  <div class="p-4 border-t border-slate-100">
+    <a class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition-all" href="#" onclick="UserAuth.logout(); return false;">
+      <iconify-icon class="text-xl" icon="solar:logout-bold"></iconify-icon>
+      <span class="font-semibold">退出系统</span>
+    </a>
+  </div>
+</aside>
+<main class="flex-1 overflow-y-auto">
+  <header class="bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b border-slate-100 px-8 py-4 flex items-center justify-between">
+    <h2 class="text-xl font-bold"><iconify-icon icon="solar:user-plus-bold" class="text-2xl mr-2 align-middle"></iconify-icon>新增用户</h2>
+    <div class="text-sm text-slate-500">支持新增老人 / 家属 / 医生账号</div>
+  </header>
+  <div class="p-8">
+    <section class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm max-w-2xl">
+      <form id="add-user-form" class="space-y-4">
+        <div>
+          <label class="block text-sm text-slate-500">角色</label>
+          <select id="role" class="w-full px-3 py-2 border rounded-lg mt-1">
+            <option value="elder">老人</option>
+            <option value="family">家属</option>
+            <option value="doctor">医生</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500">姓名</label>
+          <input id="name" class="w-full px-3 py-2 border rounded-lg mt-1" placeholder="输入姓名" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500">用户名</label>
+          <input id="username" class="w-full px-3 py-2 border rounded-lg mt-1" placeholder="登录用户名（必填）" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500">密码</label>
+          <input id="password" type="password" class="w-full px-3 py-2 border rounded-lg mt-1" placeholder="登录密码（必填）" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500">手机号</label>
+          <input id="phone" class="w-full px-3 py-2 border rounded-lg mt-1" placeholder="输入手机号" />
+        </div>
+        <div id="additional-fields"></div>
+        <div class="flex justify-end gap-3">
+          <button type="button" class="px-4 py-2 rounded-xl" onclick="history.back()">返回</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-xl">创建账号</button>
+        </div>
+      </form>
+      <div id="create-result" class="mt-4 text-sm text-green-600 hidden"></div>
+    </section>
+  </div>
+</main>
+
+  <script>
+    // 欢迎弹窗（仅显示一次）
+    function showWelcome(){
+      if(sessionStorage.getItem('admin_welcome_shown')) return;
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 flex items-center justify-center bg-black/40 z-50';
+      modal.innerHTML = `<div class="bg-white p-6 rounded-2xl max-w-lg text-center">
+        <h3 class="text-xl font-bold mb-2">欢迎，管理员</h3>
+        <p class="text-sm text-slate-600 mb-4">使用后台管理面板可以管理用户关系与系统日志。</p>
+        <button class="px-4 py-2 bg-blue-600 text-white rounded-xl" id="welcome-ok">开始使用</button>
+      </div>`;
+      document.body.appendChild(modal);
+      document.getElementById('welcome-ok').addEventListener('click', ()=>{ sessionStorage.setItem('admin_welcome_shown','1'); modal.remove(); });
+    }
+  const channel = ('BroadcastChannel' in window) ? new BroadcastChannel('admin_channel') : null;
+
+  const API_BASE = 'http://localhost:8080';
+  function apiFetch(url, options){
+    const opts = Object.assign({}, options);
+    if (!opts.method || opts.method === 'GET') {
+      opts.headers = Object.assign({}, opts.headers);
+    } else {
+      opts.headers = Object.assign({ 'Content-Type':'application/json' }, opts.headers);
+    }
+    return fetch(API_BASE + url, opts).then(r=>r.json());
+  }
+
+  function broadcast(msg){ try{ if(channel) channel.postMessage(msg); } catch(e){} }
+
+  async function renderAdditional(role){
+    const container = document.getElementById('additional-fields');
+    if(role === 'elder'){
+      container.innerHTML = `
+        <label class="block text-sm text-slate-500">绑定家属（可多选）</label>
+        <div id="family-list" class="max-h-40 overflow-y-auto border rounded-lg p-2 space-y-1 mt-1">
+          <div class="text-slate-400 text-sm">加载中...</div>
+        </div>
+        <label class="block text-sm text-slate-500 mt-3">可选医生</label>
+        <select id="doctor" class="w-full px-3 py-2 border rounded-lg mt-1"><option value="">不选</option></select>
+      `;
+      try{
+        const famRes = await apiFetch('/api/family-members');
+        const docRes = await apiFetch('/api/doctors');
+        const families = (famRes.code===200? famRes.data : []);
+        const docs = (docRes.code===200? docRes.data : []);
+        const uniqueFams = families.filter((f, i, arr) => arr.findIndex(x => x.userId === f.userId) === i);
+        const famListDiv = document.getElementById('family-list');
+        if (uniqueFams.length === 0) {
+          famListDiv.innerHTML = '<div class="text-slate-400 text-sm">暂无家属用户</div>';
+        } else {
+          famListDiv.innerHTML = uniqueFams.map(f => `<label class="flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-50 cursor-pointer">
+            <input type="checkbox" class="family-checkbox" value="${f.userId}">
+            <span>${f.name}</span>
+          </label>`).join('');
+        }
+        const docSel = document.getElementById('doctor');
+        docSel.innerHTML = '<option value="">不选</option>' + docs.map(d=>`<option value="${d.id}">${d.name}</option>`).join('');
+      }catch(err){ console.warn(err); }
+    } else if(role === 'family'){
+      try{
+        const elderRes = await apiFetch('/api/elders');
+        const elders = (elderRes.code===200? elderRes.data : []);
+        document.getElementById('additional-fields').innerHTML = `
+          <label class="block text-sm text-slate-500">关联老人（可多选）</label>
+          <div id="elder-list" class="max-h-40 overflow-y-auto border rounded-lg p-2 space-y-1 mt-1">
+            ${elders.length === 0 ? '<div class="text-slate-400 text-sm">暂无老人用户</div>' : elders.map(e => `<label class="flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-50 cursor-pointer">
+              <input type="checkbox" class="elder-checkbox" value="${e.id}">
+              <span>${e.name}</span>
+            </label>`).join('')}
+          </div>
+        `;
+      }catch(err){ document.getElementById('additional-fields').innerHTML = ''; }
+    } else {
+      document.getElementById('additional-fields').innerHTML = '';
+    }
+  }
+
+  document.getElementById('role').addEventListener('change', (e)=> renderAdditional(e.target.value));
+
+  document.getElementById('add-user-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const role = document.getElementById('role').value;
+    const name = document.getElementById('name').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const phone = document.getElementById('phone')?.value.trim() || '';
+    if(!name) return alert('请输入姓名');
+    if(!username) return alert('请输入用户名');
+    if(!password) return alert('请输入密码');
+    try{
+      const payload = { role, username, password, name, phone };
+      if(role === 'family') {
+        const elderCheckboxes = document.querySelectorAll('#elder-list input[type="checkbox"]:checked');
+        const elderIds = Array.from(elderCheckboxes).map(cb => Number(cb.value));
+        if (elderIds.length > 0) payload.elderIds = elderIds;
+      }
+      if(role === 'elder'){
+        payload.age = null; payload.gender = null; payload.bloodType = null;
+      }
+      const createRes = await apiFetch('/api/users', { method: 'POST', body: JSON.stringify(payload) });
+      if(!createRes || createRes.code !== 200){ throw new Error(createRes?.message || '创建账号失败'); }
+
+      // ===== 新增老人时同步家属/医生绑定 =====
+      if (role === 'elder') {
+        const newUserId = createRes.data?.id || createRes.data?.userId;
+        if (newUserId) {
+          const [famRes, eldersRes] = await Promise.all([
+            apiFetch('/api/family-members'),
+            apiFetch('/api/elders')
+          ]);
+          const allFamilies = (famRes.code === 200 ? famRes.data : []);
+          const newElder = (eldersRes.code === 200 ? eldersRes.data.find(e => e.userId === newUserId) : null);
+          if (newElder) {
+            const elderId = newElder.id;
+            const checkedFamUserIds = Array.from(document.querySelectorAll('#family-list input[type="checkbox"]:checked')).map(cb => Number(cb.value));
+            for (const userId of checkedFamUserIds) {
+              const famPerson = allFamilies.find(f => f.userId === userId);
+              if (famPerson) {
+                await apiFetch('/api/family-members', {
+                  method: 'POST',
+                  body: JSON.stringify({ userId, elderId, name: famPerson.name, phone: famPerson.phone || '' })
+                });
+              }
+            }
+            const selectedDoctorId = document.getElementById('doctor')?.value;
+            if (selectedDoctorId) {
+              await apiFetch('/api/elder-doctor', {
+                method: 'POST',
+                body: JSON.stringify({ elderId, doctorId: Number(selectedDoctorId) })
+              });
+            }
+          }
+        }
+      }
+
+      const user = UserAuth.getCurrentUser();
+      const roleMap = { elder:'老人', family:'家属', doctor:'医生', admin:'管理员' };
+      const roleDesc = roleMap[role] || role;
+      let detail = '';
+      if (role === 'family') {
+        const elderCheckboxes = document.querySelectorAll('#elder-list input[type="checkbox"]:checked');
+        const elderNames = Array.from(elderCheckboxes).map(cb => cb.parentElement.textContent.trim()).join('、') || '无';
+        detail = ` → 关联老人: ${elderNames}`;
+      }
+      await apiFetch('/api/admin/logs', { method: 'POST', body: JSON.stringify({ operator: user.username||'admin', operation: `新增${roleDesc}账号: ${name}${detail}` }) });
+      broadcast({type:'newUser'});
+      document.getElementById('create-result').textContent = `已创建：${name} (${role})`; document.getElementById('create-result').classList.remove('hidden');
+      setTimeout(()=>{ document.getElementById('create-result').classList.add('hidden'); location.href='admin_user_pairs.html'; }, 900);
+    }catch(err){ alert('创建失败: ' + (err.message||err)); }
+  });
+
+  window.addEventListener('DOMContentLoaded', ()=>{ UserAuth.requireAuth(['admin']); renderAdditional(document.getElementById('role').value); });
+</script>
+</body>
+</html>

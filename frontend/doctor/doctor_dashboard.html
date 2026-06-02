@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>我的监护老人 - 多银龄守护</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+    <!-- 侧边导航栏 -->
+    <aside class="w-64 bg-[#1e40af] text-white flex flex-col fixed h-full">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                <span>🏥</span>
+            </div>
+            <span class="text-xl font-bold tracking-tight">多银龄守护</span>
+        </div>
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <a class="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-xl border-l-4 border-white shadow-sm transition-all" href="doctor_dashboard.html">
+                <span>📊</span>
+                <span class="font-medium">我的监护老人</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/5 rounded-xl transition-all" href="doctor_patient_detail.html?patientId=1">
+                <span>👥</span>
+                <span>老人详情</span>
+            </a>
+        </nav>
+        <div class="p-6 border-t border-white/10">
+            <div class="flex items-center gap-3 mb-6">
+                <img alt="Doctor Avatar" class="w-10 h-10 rounded-full border-2 border-white/20" src="https://modao.cc/agent-py/media/generated_images/2026-04-28/5babafdd480d4f388443a64e1a0dd8f0.jpg"/>
+                <div>
+                    <p class="text-sm font-bold text-white" id="doctorName">医生</p>
+                    <p class="text-xs text-white/60">中心医院/全科</p>
+                </div>
+            </div>
+            <button class="w-full py-2 bg-white/10 hover:bg-red-500/20 text-white/70 hover:text-red-300 rounded-lg flex items-center justify-center gap-2 transition-all" onclick="window.location.href='../login.html'">
+                <span>🚪</span>
+                <span class="text-sm">退出登录</span>
+            </button>
+        </div>
+    </aside>
+    <!-- 主内容区 -->
+    <main class="ml-64 p-8">
+        <!-- 顶部栏 -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">我的监护老人</h1>
+                <p class="text-slate-500 mt-1">今天是 2026年04月28日 · 星期二</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="relative">
+                    <input id="searchInput" class="w-72 pl-10 pr-4 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#1e40af] outline-none" placeholder="搜索老人姓名/身份证..." type="text"/>
+                    <span>🔍</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 筛选标签 -->
+        <div class="flex gap-2 mb-6">
+            <button id="filterAll" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold">全部 (128)</button>
+            <button id="filterNormal" class="px-4 py-2 bg-white text-slate-600 rounded-xl text-sm font-bold border border-slate-200 hover:border-blue-300">正常 (115)</button>
+            <button id="filterWarning" class="px-4 py-2 bg-yellow-50 text-yellow-600 rounded-xl text-sm font-bold border border-yellow-200">轻微异常 (8)</button>
+            <button id="filterCritical" class="px-4 py-2 bg-red-50 text-red-600 rounded-xl text-sm font-bold border border-red-200">严重异常 (5)</button>
+        </div>
+        <!-- 老人列表（动态加载） -->
+        <div class="grid grid-cols-3 gap-6" id="elderlyList">
+            <!-- 加载中状态 -->
+            <div class="col-span-3 flex items-center justify-center py-12">
+                <div class="text-center">
+                    <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p class="text-slate-500">加载中...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- 警告弹窗容器 -->
+    <div id="warningModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div id="warningContent" class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <!-- 弹窗头部 -->
+            <div id="modalHeader" class="p-6">
+                <div class="flex items-center gap-4">
+                    <div id="modalIcon" class="w-16 h-16 rounded-2xl flex items-center justify-center">
+                        <span>⚠️</span>
+                    </div>
+                    <div>
+                        <h3 id="modalTitle" class="text-xl font-bold">警告提示</h3>
+                        <p id="modalSubtitle" class="text-sm text-slate-500">请及时处理老人异常情况</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 弹窗内容 -->
+            <div class="p-6 pt-0">
+                <div class="bg-slate-50 rounded-xl p-4 mb-4">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span>👤</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-800" id="patientName">张大爷</p>
+                            <p class="text-xs text-slate-500" id="patientAge">75岁 / 男</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">家庭住址</span>
+                            <span class="text-slate-800 font-medium" id="patientAddress">康乐园小区 A3-102室</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">异常类型</span>
+                            <span class="font-medium" id="alertType">血压异常</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">检测时间</span>
+                            <span class="text-slate-800" id="alertTime">2026-04-28 10:24:12</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 严重警告时显示一键报警按钮 -->
+                <div id="emergencyButtons" class="flex gap-3">
+                    <button id="confirmBtn" class="flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all">
+                        <span>🧭</span>
+                        确认前往
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 家属通知 Agent 弹窗 -->
+    <div id="notificationModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="p-5 bg-gradient-to-r from-blue-500 to-indigo-600">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                        <span class="text-2xl">🤖</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-lg">家属通知 Agent</h3>
+                        <p class="text-xs text-blue-100">多智能体协同分析 · 自动通知家属</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 space-y-4">
+                <!-- Agent检测信息 -->
+                <div id="detectionInfo" class="space-y-2">
+                    <!-- 动态生成 -->
+                </div>
+                <!-- 分割线 -->
+                <div class="border-t border-slate-100 pt-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
+                            <span class="text-green-600 text-xs">✓</span>
+                        </span>
+                        <span class="text-sm font-bold text-green-700">通知已发送给以下联系人</span>
+                    </div>
+                    <div id="notifiedList" class="space-y-3">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 pb-5">
+                <button class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors" onclick="closeNotification()">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // ========== 初始化医生信息和加载老人列表 ==========
+        // 使用window.onload确保所有DOM元素都已加载
+        window.onload = function() {
+            initDoctorInfo();
+            loadElderlyList();
+        };
+
+        function initDoctorInfo() {
+            const doctorName = sessionStorage.getItem('name');
+            const doctorEmail = sessionStorage.getItem('phone');
+            console.log('初始化医生信息 - name:', doctorName, ', phone:', doctorEmail);
+
+            // 更新侧边栏医生名字
+            const doctorNameEl = document.getElementById('doctorName');
+            if (doctorNameEl) {
+                doctorNameEl.textContent = (doctorName || '医生') + ' 医生';
+            }
+
+            // 更新通知弹窗中的医生名字和邮箱
+            const notificationDoctorNameEl = document.getElementById('notificationDoctorName');
+            if (notificationDoctorNameEl) {
+                notificationDoctorNameEl.textContent = (doctorName || '医生') + ' 医生';
+            }
+            const notificationDoctorEmailEl = document.getElementById('notificationDoctorEmail');
+            if (notificationDoctorEmailEl) {
+                notificationDoctorEmailEl.textContent = doctorEmail || '-';
+            }
+        }
+
+        // ========== 加载老人列表 ==========
+        let elderlyDataCache = [];  // 老人数据缓存
+        let currentFilter = 'all';   // 当前筛选状态: 'all', 'normal', 'warning', 'critical'
+        
+        // ========== 老人异常状态持久化 ==========
+        // 保存老人异常状态到sessionStorage
+        function saveElderAlertStatus(elderId, status) {
+            const alertStatuses = JSON.parse(sessionStorage.getItem('elderAlertStatuses') || '{}');
+            alertStatuses[elderId] = {
+                status: status,
+                timestamp: Date.now()
+            };
+            sessionStorage.setItem('elderAlertStatuses', JSON.stringify(alertStatuses));
+        }
+        
+        // 获取老人异常状态
+        function getElderAlertStatus(elderId) {
+            const alertStatuses = JSON.parse(sessionStorage.getItem('elderAlertStatuses') || '{}');
+            return alertStatuses[elderId] || null;
+        }
+        
+        // 清除老人异常状态（联系亲属或指标正常后调用）
+        function clearElderAlertStatus(elderId) {
+            const alertStatuses = JSON.parse(sessionStorage.getItem('elderAlertStatuses') || '{}');
+            delete alertStatuses[elderId];
+            sessionStorage.setItem('elderAlertStatuses', JSON.stringify(alertStatuses));
+        }
+        
+        // 应用保存的异常状态到老人数据
+        function applyAlertStatuses(elderlyList) {
+            const alertStatuses = JSON.parse(sessionStorage.getItem('elderAlertStatuses') || '{}');
+            return elderlyList.map(elder => {
+                if (alertStatuses[elder.id]) {
+                    return {
+                        ...elder,
+                        status: alertStatuses[elder.id].status
+                    };
+                }
+                return elder;
+            });
+        }
+
+        async function loadElderlyList() {
+            const elderlyList = document.getElementById('elderlyList');
+
+            try {
+                // 获取当前登录医生的ID
+                const doctorId = sessionStorage.getItem('userId');
+                console.log('加载老人列表 - doctorId:', doctorId);
+                if (!doctorId) {
+                    console.error('未找到医生ID');
+                    renderEmptyState('请先登录');
+                    return;
+                }
+
+                // 从API获取老人列表（通过医生ID关联）
+                const response = await fetch(`http://localhost:8080/api/elders/doctor/${doctorId}`);
+                console.log('API响应状态:', response.status);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('API返回数据:', result);
+                    let list = result.data || [];
+                    
+                    // 为每个老人添加默认的健康数据字段
+                    elderlyDataCache = list.map(elder => {
+                        // 统一状态为英文格式
+                        let status = elder.status;
+                        if (status === '正常') status = 'normal';
+                        if (status === '轻微异常') status = 'warning';
+                        if (status === '严重异常') status = 'critical';
+                        if (!status) status = 'normal';
+                        
+                        return {
+                            ...elder,
+                            heartRate: elder.heartRate || 78,
+                            systolic: elder.systolic || 125,
+                            diastolic: elder.diastolic || 82,
+                            steps: elder.steps || 4521,
+                            status: status,
+                            alertLevel: elder.alertLevel || 'normal'
+                        };
+                    });
+
+                    if (elderlyDataCache.length === 0) {
+                        // 没有关联老人，显示友好提示
+                        renderEmptyState('暂未签约老人');
+                    } else {
+                        // 应用保存的异常状态
+                        elderlyDataCache = applyAlertStatuses(elderlyDataCache);
+                        console.log('老人数据缓存:', elderlyDataCache);
+                        renderElderlyCards(elderlyDataCache);
+                        updateFilterCounts();
+                    }
+                } else {
+                    console.error('获取老人列表失败:', response.status);
+                    // 如果API失败，尝试用本地存储的数据渲染
+                    renderFromCacheOrMock();
+                }
+            } catch (error) {
+                console.error('加载老人列表失败:', error);
+                // API连接失败时，使用本地缓存或mock数据
+                renderFromCacheOrMock();
+            }
+        }
+
+        // 从缓存或mock数据渲染
+        function renderFromCacheOrMock() {
+            if (elderlyDataCache.length > 0) {
+                // 应用保存的异常状态
+                elderlyDataCache = applyAlertStatuses(elderlyDataCache);
+                renderElderlyCards(elderlyDataCache);
+                updateFilterCounts();
+            } else {
+                // 使用模拟数据进行演示
+                const mockData = [
+                    { id: 1, name: '王林', age: 72, gender: '男', heartRate: 78, systolic: 125, diastolic: 82, steps: 4521, status: 'normal' },
+                    { id: 2, name: '李芳', age: 68, gender: '女', heartRate: 102, systolic: 145, diastolic: 95, steps: 1203, status: 'normal' },
+                    { id: 3, name: '张大爷', age: 75, gender: '男', heartRate: 49, systolic: 170, diastolic: 110, steps: 89, status: 'normal' },
+                    { id: 4, name: '赵奶奶', age: 81, gender: '女', heartRate: 72, systolic: 118, diastolic: 78, steps: 2856, status: 'normal' },
+                    { id: 5, name: '周大爷', age: 69, gender: '男', heartRate: 80, systolic: 128, diastolic: 85, steps: 3215, status: 'normal' },
+                    { id: 6, name: '吴奶奶', age: 77, gender: '女', heartRate: 98, systolic: 142, diastolic: 92, steps: 1567, status: 'normal' }
+                ];
+                elderlyDataCache = mockData;
+                // 应用保存的异常状态
+                elderlyDataCache = applyAlertStatuses(elderlyDataCache);
+                renderElderlyCards(elderlyDataCache);
+                updateFilterCounts();
+            }
+        }
+
+        // 渲染老人卡片（根据当前筛选状态过滤）
+        function renderElderlyCards(elderlyList) {
+            const container = document.getElementById('elderlyList');
+            container.innerHTML = '';
+            
+            // 根据当前筛选状态过滤数据
+            let filteredList = elderlyList;
+            if (currentFilter !== 'all') {
+                filteredList = elderlyList.filter(e => e.status === currentFilter);
+            }
+
+            if (filteredList.length === 0) {
+                // 显示空状态
+                let message = '暂无老人数据';
+                if (currentFilter === 'normal') message = '暂无正常状态的老人';
+                if (currentFilter === 'warning') message = '暂无轻微异常状态的老人';
+                if (currentFilter === 'critical') message = '暂无严重异常状态的老人';
+                
+                container.innerHTML = `
+                    <div class="col-span-3 flex flex-col items-center justify-center py-12">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-3xl">📭</span>
+                        </div>
+                        <p class="text-slate-500 mb-2">${message}</p>
+                        <p class="text-xs text-slate-400">切换其他筛选条件查看</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredList.forEach(elder => {
+                const card = createElderCard(elder);
+                container.appendChild(card);
+            });
+        }
+        
+        // 更新筛选按钮的激活状态
+        function updateFilterButtonStates() {
+            const btnAll = document.getElementById('filterAll');
+            const btnNormal = document.getElementById('filterNormal');
+            const btnWarning = document.getElementById('filterWarning');
+            const btnCritical = document.getElementById('filterCritical');
+            
+            // 重置所有按钮样式
+            [btnAll, btnNormal, btnWarning, btnCritical].forEach(btn => {
+                if (btn) {
+                    btn.className = 'px-4 py-2 bg-white text-slate-600 rounded-xl text-sm font-bold border border-slate-200 hover:border-blue-300';
+                }
+            });
+            
+            // 设置当前选中按钮的样式
+            const activeBtn = {
+                'all': btnAll,
+                'normal': btnNormal,
+                'warning': btnWarning,
+                'critical': btnCritical
+            }[currentFilter];
+            
+            if (activeBtn) {
+                if (currentFilter === 'all') {
+                    activeBtn.className = 'px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold';
+                } else if (currentFilter === 'normal') {
+                    activeBtn.className = 'px-4 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-bold border border-green-300';
+                } else if (currentFilter === 'warning') {
+                    activeBtn.className = 'px-4 py-2 bg-yellow-100 text-yellow-700 rounded-xl text-sm font-bold border border-yellow-300';
+                } else if (currentFilter === 'critical') {
+                    activeBtn.className = 'px-4 py-2 bg-red-100 text-red-700 rounded-xl text-sm font-bold border border-red-300';
+                }
+            }
+        }
+        
+        // 筛选按钮点击处理
+        function handleFilterClick(filterType) {
+            currentFilter = filterType;
+            updateFilterButtonStates();
+            renderElderlyCards(elderlyDataCache);
+        }
+
+        // 创建单个老人卡片
+        function createElderCard(elder) {
+            const div = document.createElement('div');
+            div.className = 'bg-white rounded-2xl border border-slate-100 shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer';
+            div.onclick = () => viewPatientDetail(elder.id);
+
+            // 根据状态设置样式
+            let statusClass, statusText, borderClass, pulseClass, iconBgClass;
+            switch (elder.status) {
+                case 'warning':
+                    statusClass = 'bg-yellow-100 text-yellow-600';
+                    statusText = '轻微异常';
+                    borderClass = 'border-2 border-yellow-300';
+                    pulseClass = '<span class="w-3 h-3 bg-yellow-400 rounded-full animate-pulse absolute top-4 right-4"></span>';
+                    iconBgClass = 'bg-yellow-100';
+                    break;
+                case 'critical':
+                    statusClass = 'bg-red-100 text-red-600';
+                    statusText = '严重异常';
+                    borderClass = 'border-2 border-red-400';
+                    pulseClass = '<span class="w-3 h-3 bg-red-500 rounded-full animate-pulse absolute top-4 right-4"></span>';
+                    iconBgClass = 'bg-red-100';
+                    break;
+                default:
+                    statusClass = 'bg-green-100 text-green-600';
+                    statusText = '正常';
+                    borderClass = 'border border-slate-100';
+                    pulseClass = '';
+                    iconBgClass = 'bg-blue-100';
+            }
+
+            // 性别图标
+            const genderIcon = elder.gender === '女' ? '👵' : '👴';
+
+            div.className += ' ' + borderClass;
+            if (pulseClass) div.style.position = 'relative';
+
+            div.innerHTML = `
+                ${pulseClass}
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 ${iconBgClass} rounded-full flex items-center justify-center">
+                            <span>${genderIcon}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">${elder.name}</h3>
+                            <p class="text-xs text-slate-500">${elder.age}岁 / ${elder.gender}</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-1 ${statusClass} text-[10px] font-bold rounded-full">${statusText}</span>
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between text-slate-500">
+                        <span>心率</span>
+                        <span class="text-slate-800 font-medium">${elder.heartRate || '-'}${elder.heartRate ? ' bpm' : ''}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-500">
+                        <span>血压</span>
+                        <span class="text-slate-800 font-medium">${elder.systolic || '-'}/${elder.diastolic || '-'} mmHg</span>
+                    </div>
+                    <div class="flex justify-between text-slate-500">
+                        <span>身高/体重</span>
+                        <span class="text-slate-800 font-medium">${elder.height || '-'}/${elder.weight || '-'}</span>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span class="text-xs text-slate-400">ID: ${elder.id}</span>
+                    <button class="text-xs text-blue-600 font-bold hover:underline" onclick="viewPatientDetail(${elder.id})">查看详情</button>
+                </div>
+            `;
+
+            return div;
+        }
+
+        // 更新筛选标签的数量
+        function updateFilterCounts() {
+            const total = elderlyDataCache.length;
+            const normal = elderlyDataCache.filter(e => e.status === 'normal').length;
+            const warning = elderlyDataCache.filter(e => e.status === 'warning').length;
+            const critical = elderlyDataCache.filter(e => e.status === 'critical').length;
+
+            // 更新按钮文本
+            const btnAll = document.getElementById('filterAll');
+            const btnNormal = document.getElementById('filterNormal');
+            const btnWarning = document.getElementById('filterWarning');
+            const btnCritical = document.getElementById('filterCritical');
+            
+            if (btnAll) btnAll.textContent = `全部 (${total})`;
+            if (btnNormal) btnNormal.textContent = `正常 (${normal})`;
+            if (btnWarning) btnWarning.textContent = `轻微异常 (${warning})`;
+            if (btnCritical) btnCritical.textContent = `严重异常 (${critical})`;
+            
+            // 更新按钮激活状态
+            updateFilterButtonStates();
+        }
+
+        // 渲染空状态
+        function renderEmptyState(message) {
+            const container = document.getElementById('elderlyList');
+            container.innerHTML = `
+                <div class="col-span-3 flex flex-col items-center justify-center py-12">
+                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                        <span class="text-3xl">👤</span>
+                    </div>
+                    <p class="text-slate-500 mb-2">${message}</p>
+                    <p class="text-xs text-slate-400">如有疑问请联系管理员</p>
+                </div>
+            `;
+        }
+
+        // 模拟警告触发（15秒后）
+        setTimeout(function() {
+            // 找到李芳对应的老人并更新她的状态
+            const liFang = elderlyDataCache.find(e => e.name === '李芳');
+            if (liFang) {
+                // 检查是否已经有保存的状态，如果没有则设置为异常
+                const existingStatus = getElderAlertStatus(liFang.id);
+                if (!existingStatus) {
+                    // 保存状态到sessionStorage
+                    saveElderAlertStatus(liFang.id, 'warning');
+                    liFang.status = 'warning';
+                    console.log('已更新李芳的状态为warning并保存');
+                } else {
+                    liFang.status = existingStatus.status;
+                    console.log('李芳已有保存的状态:', existingStatus.status);
+                }
+                // 重新渲染卡片
+                renderElderlyCards(elderlyDataCache);
+                updateFilterCounts();
+            }
+            showWarning('minor');
+        }, 15000);
+
+        // ========== 页面加载完成后自动加载老人列表 ==========
+        function showWarning(type) {
+            const modal = document.getElementById('warningModal');
+            const header = document.getElementById('modalHeader');
+            const icon = document.getElementById('modalIcon');
+            const title = document.getElementById('modalTitle');
+            const subtitle = document.getElementById('modalSubtitle');
+            const patientName = document.getElementById('patientName');
+            const patientAge = document.getElementById('patientAge');
+            const patientAddress = document.getElementById('patientAddress');
+            const alertType = document.getElementById('alertType');
+            const alertTime = document.getElementById('alertTime');
+            const emergencyButtons = document.getElementById('emergencyButtons');
+            const confirmBtn = document.getElementById('confirmBtn');
+            
+            let targetElder = null;
+            
+            if (type === 'minor') {
+                // 轻微警告 - 黄色
+                targetElder = elderlyDataCache.find(e => e.name === '李芳');
+                header.className = 'p-6 bg-yellow-50';
+                icon.className = 'w-16 h-16 rounded-2xl flex items-center justify-center bg-yellow-100 text-yellow-600';
+                title.className = 'text-xl font-bold text-yellow-700';
+                title.textContent = '轻微警告';
+                subtitle.textContent = '老人健康指标出现异常，请注意关注';
+                patientName.textContent = targetElder ? targetElder.name : '李芳';
+                patientAge.textContent = targetElder ? `${targetElder.age}岁 / ${targetElder.gender}` : '68岁 / 女';
+                patientAddress.textContent = '幸福小区 B栋 501室';
+                alertType.className = 'font-medium text-yellow-600';
+                alertType.textContent = '血压偏高';
+                alertTime.textContent = new Date().toLocaleString('zh-CN');
+                confirmBtn.className = 'flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-yellow-500 text-white hover:bg-yellow-600';
+                const patientId = targetElder ? targetElder.id : 2;
+                emergencyButtons.innerHTML = `
+                    <button id="confirmBtn" class="flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-yellow-500 text-white hover:bg-yellow-600" onclick="goToMonitor('${targetElder ? targetElder.name : '李芳'}', ${patientId})">
+                        <span>🧭</span>
+                        确认前往
+                    </button>
+                `;
+            } else {
+                // 严重警告 - 红色
+                targetElder = elderlyDataCache.find(e => e.name === '张大爷');
+                header.className = 'p-6 bg-red-50';
+                icon.className = 'w-16 h-16 rounded-2xl flex items-center justify-center bg-red-100 text-red-600';
+                title.className = 'text-xl font-bold text-red-700';
+                title.textContent = '严重警告';
+                subtitle.textContent = '老人出现高危异常，需要立即处理！';
+                patientName.textContent = targetElder ? targetElder.name : '张大爷';
+                patientAge.textContent = targetElder ? `${targetElder.age}岁 / ${targetElder.gender}` : '75岁 / 男';
+                patientAddress.textContent = '康乐园小区 A3-102室';
+                alertType.className = 'font-medium text-red-600';
+                alertType.textContent = '疑似跌倒 + 血压危急';
+                alertTime.textContent = new Date().toLocaleString('zh-CN');
+                const patientId = targetElder ? targetElder.id : 3;
+                emergencyButtons.innerHTML = `
+                    <button id="confirmBtn" class="flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-blue-600 text-white hover:bg-blue-700" onclick="goToEmergency('${targetElder ? targetElder.name : '张大爷'}', ${patientId})">
+                        <span>🧭</span>
+                        确认前往
+                    </button>
+                    <button class="flex-1 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all bg-red-600 text-white hover:bg-red-700" onclick="callEmergency()">
+                        <span>📞</span>
+                        一键报警
+                    </button>
+                `;
+            }
+            modal.classList.remove('hidden');
+            // 同时触发家属通知Agent弹窗（模拟多智能体协同）
+            setTimeout(function() {
+                showFamilyNotification(type);
+            }, 1500);
+        }
+        // 家属通知Agent - 显示通知弹窗
+        function showFamilyNotification(type) {
+            const detectionInfo = document.getElementById('detectionInfo');
+            const notifiedList = document.getElementById('notifiedList');
+            if (type === 'minor') {
+                detectionInfo.innerHTML = `
+                    <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-xl">
+                        <span class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">💓</span>
+                        <div>
+                            <p class="text-sm font-bold text-blue-700">健康监测 Agent</p>
+                            <p class="text-xs text-slate-600">检测到李芳（68岁）血压偏高（142/88 mmHg），超出正常范围</p>
+                        </div>
+                    </div>
+                `;
+                notifiedList.innerHTML = `
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center"><span>👤</span></div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm">李小红</p>
+                                <p class="text-xs text-slate-500">女儿 · 家属</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600 text-sm">✓ 已通知</p>
+                            <p class="text-xs text-slate-400">13700000002</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                detectionInfo.innerHTML = `
+                    <div class="flex items-start gap-3 p-3 bg-red-50 rounded-xl">
+                        <span class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center shrink-0">⚠️</span>
+                        <div>
+                            <p class="text-sm font-bold text-red-700">行为分析 Agent</p>
+                            <p class="text-xs text-slate-600">检测到张大爷（75岁）Z轴加速度突变为4.2g，疑似跌倒，置信度96.8%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl">
+                        <span class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center shrink-0">🩸</span>
+                        <div>
+                            <p class="text-sm font-bold text-orange-700">健康监测 Agent</p>
+                            <p class="text-xs text-slate-600">检测到血压185/110 mmHg，心率118bpm，属危急状态</p>
+                        </div>
+                    </div>
+                `;
+                notifiedList.innerHTML = `
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center"><span>👤</span></div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm">张小明</p>
+                                <p class="text-xs text-slate-500">儿子 · 家属</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600 text-sm">✓ 紧急通知</p>
+                            <p class="text-xs text-slate-400">13700000001</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-100">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-green-100 rounded-full flex items-center justify-center"><span>👨‍⚕️</span></div>
+                            <div>
+                                <p class="font-bold text-slate-800 text-sm" id="notificationDoctorName">医生</p>
+                                <p class="text-xs text-slate-500">全科 · 社区医生</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600 text-sm">✓ 已通知</p>
+                            <p class="text-xs text-slate-400" id="notificationDoctorEmail">-</p>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('notificationModal').classList.remove('hidden');
+        }
+        function closeNotification() {
+            document.getElementById('notificationModal').classList.add('hidden');
+        }
+        function viewPatientDetail(patientId) {
+            window.location.href = `doctor_patient_detail.html?patientId=${patientId}`;
+        }
+        function goToMonitor(name, patientId) {
+            document.getElementById('warningModal').classList.add('hidden');
+            window.location.href = `doctor_patient_detail.html?patientId=${patientId}`;
+        }
+        function goToEmergency(name, patientId) {
+            document.getElementById('warningModal').classList.add('hidden');
+            window.location.href = `doctor_patient_detail.html?patientId=${patientId}&tab=emergency`;
+        }
+        function callEmergency() {
+            alert('已拨打 120 和 110，救援人员正在前往中...');
+            document.getElementById('warningModal').classList.add('hidden');
+        }
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('#elderlyList > div');
+            cards.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+        
+        // 筛选按钮事件绑定
+        document.getElementById('filterAll').addEventListener('click', function() {
+            handleFilterClick('all');
+        });
+        document.getElementById('filterNormal').addEventListener('click', function() {
+            handleFilterClick('normal');
+        });
+        document.getElementById('filterWarning').addEventListener('click', function() {
+            handleFilterClick('warning');
+        });
+        document.getElementById('filterCritical').addEventListener('click', function() {
+            handleFilterClick('critical');
+        });
+
+        // 关闭弹窗（ESC键或点击遮罩关闭）
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('warningModal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                }
+            }
+        });
+        
+        document.getElementById('warningModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
