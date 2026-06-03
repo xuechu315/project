@@ -27,7 +27,4 @@ public class EmergencyAssessmentRequest {
     private Double accelerationZ;
 
     private String behaviorNote;
-
-    /** 是否为SOS紧急求助 */
-    private Boolean sosRequest;
 }

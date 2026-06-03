@@ -30,7 +30,7 @@
             <div class="flex items-center gap-3 mb-6">
                 <img alt="Doctor Avatar" class="w-10 h-10 rounded-full border-2 border-white/20" src="https://modao.cc/agent-py/media/generated_images/2026-04-28/5babafdd480d4f388443a64e1a0dd8f0.jpg"/>
                 <div>
-                    <p class="text-sm font-bold text-white" id="doctorName">医生</p>
+                    <p class="text-sm font-bold text-white">王建国 医生</p>
                     <p class="text-xs text-white/60">中心医院/全科</p>
                 </div>
             </div>
@@ -435,16 +435,10 @@
                         <h1 class="text-2xl font-bold text-slate-800">健康完备档案</h1>
                         <p class="text-slate-500 mt-1">沉淀老人全生命周期健康数据</p>
                     </div>
-                    <div class="flex gap-3">
-                        <button class="px-4 py-2 bg-green-600 text-white rounded-xl font-bold flex items-center gap-2" onclick="showEditHealthModal()">
-                            <span>✏️</span>
-                            修改健康信息
-                        </button>
-                        <button class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2" onclick="showExportModal()">
-                            <span>📥</span>
-                            导出档案
-                        </button>
-                    </div>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2" onclick="showExportModal()">
+                        <span>📥</span>
+                        导出档案
+                    </button>
                 </header>
                 <!-- 基础信息 -->
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
@@ -706,73 +700,6 @@
             </div>
         </div>
     </div>
-    <!-- 修改健康信息弹窗 -->
-    <div id="editHealthModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <span>✏️</span>
-                修改健康信息
-            </h3>
-            <form id="editHealthForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">姓名</label>
-                    <input id="editHealthName" type="text" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-green-500 outline-none bg-slate-50" readonly/>
-                    <p class="text-xs text-slate-400 mt-1">姓名不可修改</p>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">年龄</label>
-                        <input id="editHealthAge" type="number" min="0" max="150" disabled class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed" placeholder="如：75"/>
-                        <p class="text-xs text-slate-400 mt-1">年龄不可修改</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">性别</label>
-                        <select id="editHealthGender" disabled class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 cursor-not-allowed">
-                            <option value="男">男</option>
-                            <option value="女">女</option>
-                        </select>
-                        <p class="text-xs text-slate-400 mt-1">性别不可修改</p>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">血型</label>
-                    <select id="editHealthBloodType" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-green-500 outline-none">
-                        <option value="">请选择血型</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                    </select>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">身高 (cm)</label>
-                        <input id="editHealthHeight" type="number" min="50" max="250" step="0.1" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-green-500 outline-none" placeholder="如：172"/>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2">体重 (kg)</label>
-                        <input id="editHealthWeight" type="number" min="20" max="300" step="0.1" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-green-500 outline-none" placeholder="如：68"/>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">联系电话</label>
-                    <input id="editHealthPhone" type="tel" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-green-500 outline-none" placeholder="请输入联系电话"/>
-                </div>
-                <div class="flex gap-3 mt-6">
-                    <button type="button" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors" onclick="closeEditHealthModal()">
-                        取消
-                    </button>
-                    <button type="submit" class="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-colors">
-                        保存修改
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
     <!-- 家属通知 Agent 弹窗 -->
     <div id="familyModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
@@ -838,89 +765,19 @@
         
         // 老人数据映射（与数据库对应）
         const patientDataMap = {
-            1: { name: '王林', age: 72, gender: '男', bloodType: 'B+', height: 175, weight: 72, phone: '13900000003', heartRate: 78, systolic: 125, diastolic: 82, steps: 4521, status: '正常', alertLevel: 'normal' },
-            2: { name: '李芳', age: 68, gender: '女', bloodType: 'A+', height: 158, weight: 55, phone: '13900000002', heartRate: 92, systolic: 142, diastolic: 88, steps: 3102, status: '轻微异常', alertLevel: 'warning' },
-            3: { name: '张大爷', age: 75, gender: '男', bloodType: 'O+', height: 172, weight: 68, phone: '13900000001', heartRate: 118, systolic: 185, diastolic: 110, steps: 1250, status: '严重异常', alertLevel: 'danger', behavior: '疑似跌倒' },
-            4: { name: '陈秀莲', age: 65, gender: '女', bloodType: 'AB+', height: 155, weight: 52, phone: '13900000004', heartRate: 72, systolic: 118, diastolic: 78, steps: 5890, status: '正常', alertLevel: 'normal' },
-            5: { name: '赵德明', age: 78, gender: '男', bloodType: 'O-', height: 168, weight: 65, phone: '13900000005', heartRate: 68, systolic: 130, diastolic: 85, steps: 2340, status: '正常', alertLevel: 'normal' },
-            6: { name: '周玉珍', age: 70, gender: '女', bloodType: 'A-', height: 160, weight: 58, phone: '13900000006', heartRate: 95, systolic: 155, diastolic: 95, steps: 1800, status: '轻微异常', alertLevel: 'warning' },
-            7: { name: '吴立本', age: 82, gender: '男', bloodType: 'AB+', height: 170, weight: 70, phone: '13900000007', heartRate: 65, systolic: 128, diastolic: 82, steps: 3200, status: '正常', alertLevel: 'normal' },
-            8: { name: '郑美华', age: 69, gender: '女', bloodType: 'O+', height: 162, weight: 56, phone: '13900000008', heartRate: 88, systolic: 138, diastolic: 88, steps: 4100, status: '正常', alertLevel: 'normal' }
+            1: { name: '王林', age: 72, gender: '男', heartRate: 78, systolic: 125, diastolic: 82, steps: 4521, status: '正常', alertLevel: 'normal' },
+            2: { name: '李芳', age: 68, gender: '女', heartRate: 92, systolic: 142, diastolic: 88, steps: 3102, status: '轻微异常', alertLevel: 'warning' },
+            3: { name: '张大爷', age: 75, gender: '男', heartRate: 118, systolic: 185, diastolic: 110, steps: 1250, status: '严重异常', alertLevel: 'danger', behavior: '疑似跌倒' },
+            4: { name: '陈秀莲', age: 65, gender: '女', heartRate: 72, systolic: 118, diastolic: 78, steps: 5890, status: '正常', alertLevel: 'normal' },
+            5: { name: '赵德明', age: 78, gender: '男', heartRate: 68, systolic: 130, diastolic: 85, steps: 2340, status: '正常', alertLevel: 'normal' },
+            6: { name: '周玉珍', age: 70, gender: '女', heartRate: 95, systolic: 155, diastolic: 95, steps: 1800, status: '轻微异常', alertLevel: 'warning' },
+            7: { name: '吴立本', age: 82, gender: '男', heartRate: 65, systolic: 128, diastolic: 82, steps: 3200, status: '正常', alertLevel: 'normal' },
+            8: { name: '郑美华', age: 69, gender: '女', heartRate: 88, systolic: 138, diastolic: 88, steps: 4100, status: '正常', alertLevel: 'normal' }
         };
         
         // 加载老人数据
         async function loadPatientData(patientId) {
-            console.log('=== loadPatientData 开始 ===');
-            console.log('patientId:', patientId);
-            
-            let data;
-            
-            if (backendConnected) {
-                try {
-                    console.log('从后端获取数据...');
-                    // 直接通过elder_id获取
-                    const elderResp = await fetch(`${API_BASE}/api/elders/${patientId}?_t=${Date.now()}`);
-                    console.log('elderResp.status:', elderResp.status);
-                    
-                    if (elderResp.ok) {
-                        const elderResult = await elderResp.json();
-                        console.log('elderResult:', elderResult);
-                        
-                        if (elderResult.data) {
-                            const elderData = elderResult.data;
-                            const userId = elderData.userId;
-                            
-                            // 获取用户信息（姓名和电话）
-                            const userResp = await fetch(`${API_BASE}/api/users/${userId}?_t=${Date.now()}`);
-                            if (userResp.ok) {
-                                const userResult = await userResp.json();
-                                console.log('userResult:', userResult);
-                                
-                                if (userResult.data) {
-                                    // 构建完整数据
-                                    data = {
-                                        id: elderData.id,
-                                        userId: elderData.userId,
-                                        name: userResult.data.name || '未知',
-                                        age: elderData.age || 0,
-                                        gender: elderData.gender || '未知',
-                                        bloodType: elderData.bloodType || '-',
-                                        height: elderData.height || '-',
-                                        weight: elderData.weight || '-',
-                                        phone: userResult.data.phone || '-',
-                                        heartRate: 78,
-                                        systolic: 125,
-                                        diastolic: 82,
-                                        steps: 4521,
-                                        status: '正常',
-                                        alertLevel: 'normal'
-                                    };
-                                    
-                                    console.log('从后端获取的elderData:', elderData);
-                                    console.log('从后端获取的userResult:', userResult.data);
-                                    console.log('构建的data.height:', data.height, 'data.weight:', data.weight);
-                                    
-                                    // 重要：更新patientDataMap，以便刷新后也能使用最新数据
-                                    patientDataMap[patientId] = data;
-                                    
-                                    console.log('从后端构建的data:', data);
-                                }
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.error('从后端加载数据失败:', e);
-                }
-            }
-            
-            // 如果后端没有数据，使用本地数据
-            if (!data) {
-                console.log('使用本地patientDataMap数据');
-                data = patientDataMap[patientId] || patientDataMap[1];
-            }
-            
-            console.log('最终使用的data:', data);
-            console.log('=== loadPatientData 结束 ===');
+            const data = patientDataMap[patientId] || patientDataMap[1];
             
             // 更新左侧Tab导航中的老人信息
             const navName = document.querySelector('#leftNav h2.font-bold.text-slate-800');
@@ -1023,35 +880,18 @@
         
         // 更新档案Tab
         function updateRecordTab(data) {
-            console.log('=== updateRecordTab 被调用 ===');
-            console.log('data:', JSON.stringify(data));
             const recordGrid = document.querySelector('#content-record .grid.grid-cols-4.gap-6');
-            console.log('recordGrid:', recordGrid);
             if (recordGrid) {
                 const cards = recordGrid.children;
-                console.log('cards数量:', cards.length);
                 // 第1个卡片: 姓名
                 const nameEl = cards[0]?.querySelector('.font-bold.text-slate-800');
-                if (nameEl) nameEl.textContent = data.name || '';
+                if (nameEl) nameEl.textContent = data.name;
                 // 第2个卡片: 性别
                 const genderEl = cards[1]?.querySelector('.font-bold.text-slate-800');
-                if (genderEl) genderEl.textContent = data.gender || '';
+                if (genderEl) genderEl.textContent = data.gender;
                 // 第3个卡片: 年龄（显示"XX岁"格式）
                 const ageEl = cards[2]?.querySelector('.font-bold.text-slate-800');
-                if (ageEl) ageEl.textContent = (data.age || '') + '岁';
-                // 第4个卡片: 血型
-                const bloodTypeEl = cards[3]?.querySelector('.font-bold.text-slate-800');
-                if (bloodTypeEl) bloodTypeEl.textContent = (data.bloodType || '') + (data.bloodType ? '型' : '');
-                // 第5个卡片: 身高/体重
-                const hwEl = cards[4]?.querySelector('.font-bold.text-slate-800');
-                if (hwEl) {
-                    const height = data.height ? data.height + 'cm' : '';
-                    const weight = data.weight ? data.weight + 'kg' : '';
-                    hwEl.textContent = [height, weight].filter(Boolean).join(' / ') || '-';
-                }
-                // 第6个卡片: 联系方式
-                const phoneEl = cards[5]?.querySelector('.font-bold.text-slate-800');
-                if (phoneEl) phoneEl.textContent = data.phone || '-';
+                if (ageEl) ageEl.textContent = data.age + '岁';
             }
         }
         // 后端API基地址 - 自动检测
@@ -1065,6 +905,7 @@
 
         // 检查后端连接状态（每次加载页面前调用）
         async function checkBackendConnection(patientId) {
+            currentUserId = getUserId(patientId);
             // 先尝试连接后端 /api/config
             try {
                 const resp = await fetch(`${API_BASE}/api/config`, { method: 'GET' });
@@ -1079,6 +920,11 @@
             return false;
         }
 
+        // 前端patientId → 数据库user_id 映射（数据库user表admin=1,doctor1=2,doctor2=3,elderly1=4...）
+        function getUserId(patientId) {
+            const map = { 1:6, 2:5, 3:4, 4:7, 5:8, 6:9, 7:9, 8:9 };
+            return map[patientId] || patientId;
+        }
         // 渲染用药列表
         function renderMedicationList(list, containerId) {
             const container = document.getElementById(containerId);
@@ -1637,19 +1483,13 @@ tr:nth-child(even){background:#f8fafc}
         }
         // 初始化图表和加载老人数据
         window.addEventListener('DOMContentLoaded', async () => {
-            // ========== 初始化医生信息 ==========
-            const doctorName = sessionStorage.getItem('name');
-            const doctorNameEl = document.getElementById('doctorName');
-            if (doctorNameEl && doctorName) {
-                doctorNameEl.textContent = doctorName + ' 医生';
-            }
-
             // 从URL参数获取patientId
             const urlParams = new URLSearchParams(window.location.search);
             const patientId = urlParams.get('patientId') || 1;
             const tabParam = urlParams.get('tab');
             
             // 先检查后端连接状态
+            currentUserId = getUserId(parseInt(patientId));
             const connected = await checkBackendConnection(parseInt(patientId));
             
             // 加载老人数据（使用本地patientDataMap显示基本信息，后端连通时也可从API获取更多数据）
@@ -1668,7 +1508,7 @@ tr:nth-child(even){background:#f8fafc}
                 statusEl.classList.remove('hidden');
             }
             if (connected) {
-                console.log('✅ 后端已连接');
+                console.log('✅ 后端已连接，数据库user_id=' + currentUserId);
             } else {
                 console.warn('⚠️ 后端未连接，使用本地数据展示');
             }
@@ -1730,138 +1570,6 @@ tr:nth-child(even){background:#f8fafc}
                 ]
             };
             chart.setOption(option);
-        });
-        
-        // ===== 修改健康信息功能 =====
-        function showEditHealthModal() {
-            const modal = document.getElementById('editHealthModal');
-            const urlParams = new URLSearchParams(window.location.search);
-            const patientId = parseInt(urlParams.get('patientId')) || 1;
-            const data = patientDataMap[patientId] || patientDataMap[1];
-            
-            // 填充表单数据
-            document.getElementById('editHealthName').value = data.name || '';
-            document.getElementById('editHealthAge').value = data.age || '';
-            document.getElementById('editHealthGender').value = data.gender || '男';
-            document.getElementById('editHealthBloodType').value = data.bloodType || '';
-            document.getElementById('editHealthHeight').value = data.height || '';
-            document.getElementById('editHealthWeight').value = data.weight || '';
-            document.getElementById('editHealthPhone').value = data.phone || '';
-            
-            modal.classList.remove('hidden');
-        }
-        
-        function closeEditHealthModal() {
-            document.getElementById('editHealthModal').classList.add('hidden');
-        }
-        
-        // 表单提交处理
-        document.getElementById('editHealthForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const urlParams = new URLSearchParams(window.location.search);
-            const patientId = parseInt(urlParams.get('patientId')) || 1;
-            
-            // 从patientDataMap中获取正确的userId和当前数据
-            const currentData = patientDataMap[patientId] || {};
-            const userId = currentData.userId;
-            
-            if (!userId) {
-                alert('错误：无法获取用户信息，请刷新页面重试');
-                return;
-            }
-            
-            // 获取表单数据
-            const age = document.getElementById('editHealthAge').value;
-            const gender = document.getElementById('editHealthGender').value;
-            const bloodType = document.getElementById('editHealthBloodType').value;
-            const height = document.getElementById('editHealthHeight').value;
-            const weight = document.getElementById('editHealthWeight').value;
-            const phone = document.getElementById('editHealthPhone').value;
-            
-            // 验证必填字段
-            if (!age) {
-                alert('请输入年龄');
-                return;
-            }
-            
-            try {
-                // 更新老人表（elder表）
-                const elderData = {
-                    age: parseInt(age),
-                    gender: gender,
-                    bloodType: bloodType || null,
-                    height: height ? parseFloat(height) : null,
-                    weight: weight ? parseFloat(weight) : null
-                };
-                
-                console.log('准备更新老人信息, elderId:', patientId, ', userId:', userId, '数据:', elderData);
-                
-                // patientId 就是 elderId，直接更新
-                const updateResp = await fetch(`${API_BASE}/api/elders/${patientId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(elderData)
-                });
-                
-                console.log('更新elder记录响应:', updateResp.status, updateResp.statusText);
-                
-                if (!updateResp.ok) {
-                    const errorText = await updateResp.text();
-                    console.error('更新失败详情:', errorText);
-                    throw new Error('更新老人信息失败: ' + errorText);
-                }
-                
-                console.log('老人信息更新成功');
-                
-                // 更新用户表（user表）的电话信息
-                if (phone) {
-                    await fetch(`${API_BASE}/api/users/${userId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phone: phone })
-                    });
-                }
-                
-                // 更新成功提示
-                alert('✅ 健康信息修改成功！');
-                closeEditHealthModal();
-                
-                // 直接更新patientDataMap中的数据
-                console.log('修改前 patientDataMap[patientId]:', patientDataMap[patientId]);
-                patientDataMap[patientId] = {
-                    ...patientDataMap[patientId],
-                    age: parseInt(age),
-                    gender: gender,
-                    bloodType: bloodType || patientDataMap[patientId]?.bloodType,
-                    height: height ? parseFloat(height) : patientDataMap[patientId]?.height,
-                    weight: weight ? parseFloat(weight) : patientDataMap[patientId]?.weight,
-                    phone: phone || patientDataMap[patientId]?.phone
-                };
-                console.log('修改后 patientDataMap[patientId]:', patientDataMap[patientId]);
-                
-                // 直接调用updateRecordTab更新页面显示
-                updateRecordTab(patientDataMap[patientId]);
-                
-            } catch (error) {
-                console.error('修改健康信息失败:', error);
-                alert('❌ 修改失败：' + error.message);
-            }
-        });
-        
-        // ESC键关闭弹窗
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeEditHealthModal();
-                closeMedicationModal();
-            }
-        });
-        
-        // 点击遮罩关闭弹窗
-        document.getElementById('editHealthModal')?.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditHealthModal();
-            }
         });
     </script>
 </body>

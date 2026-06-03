@@ -42,18 +42,15 @@ public class WebConfig implements WebMvcConfigurer {
             return;
         }
 
-        // 注册静态资源处理器
-        registry.addResourceHandler("/doctor/doctor_dashboard.html", "/doctor/doctor_patient_detail.html")
-                .addResourceLocations(foundPath)
-                .resourceChain(false);
+        // 注册静态资源处理器 - 映射所有前端文件
+        // 访问 http://localhost:8080/doctor/** 会映射到 frontend/doctor/**
+        // 访问 http://localhost:8080/admin/** 会映射到 frontend/admin/**
+        // 访问 http://localhost:8080/js/** 会映射到 frontend/js/**
+        // 访问 http://localhost:8080/*.html 会映射到 frontend/*.html
         
-        registry.addResourceHandler("/doctor/**")
+        registry.addResourceHandler("/**")
                 .addResourceLocations(foundPath)
-                .resourceChain(false);
-        
-        registry.addResourceHandler("/login.html")
-                .addResourceLocations(foundPath)
-                .resourceChain(false);
+                .setCachePeriod(0);
 
         System.out.println("【WebConfig】前端静态文件已映射: " + foundPath);
     }
