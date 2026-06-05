@@ -1,5 +1,7 @@
 package com.example.elderlycare.controller;
 
+import com.example.elderlycare.agent.EmergencyResponseAgent;
+import com.example.elderlycare.agent.StaffNotificationAgent;
 import com.example.elderlycare.dto.request.EmergencyAssessmentRequest;
 import com.example.elderlycare.dto.request.EmergencyDispatchRequest;
 import com.example.elderlycare.dto.request.RoutePlanningRequest;
@@ -14,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 应急响应控制器
  */
@@ -25,6 +29,12 @@ public class EmergencyController {
 
     @Autowired
     private EmergencyService emergencyService;
+
+    @Autowired
+    private EmergencyResponseAgent emergencyResponseAgent;
+
+    @Autowired
+    private StaffNotificationAgent staffNotificationAgent;
 
     /**
      * 风险评估接口
@@ -118,5 +128,76 @@ public class EmergencyController {
         int minutes = emergencyService.estimateTravelTime(distanceKm, transportMode);
         
         return ResponseEntity.ok(ApiResponse.success(minutes));
+    }
+
+    // ==================== 人工决策支持接口 ====================
+
+    /**
+     * 获取待人工决策的事件列表
+     * GET /api/emergency/pending-events
+     */
+    @GetMapping("/pending-events")
+    public ResponseEntity<ApiResponse<List<EmergencyResponseAgent.AlertEvent>>> getPendingEvents() {
+        List<EmergencyResponseAgent.AlertEvent> events = emergencyResponseAgent.getPendingEvents();
+        return ResponseEntity.ok(ApiResponse.success(events));
+    }
+
+    /**
+     * 人工决策处置接口
+     * POST /api/emergency/human-decision
+     *
+     * @param eventId  事件ID
+     * @param decision 决策（DISPATCH_AMBULANCE / HOME_VISIT / MONITOR / DISMISS）
+     * @param notes    决策备注
+     */
+    @PostMapping("/human-decision")
+    public ResponseEntity<ApiResponse<String>> humanDecision(
+            @RequestParam String eventId,
+            @RequestParam String decision,
+            @RequestParam(required = false) String notes) {
+
+        log.info("人工决策请求: eventId={}, decision={}, notes={}", eventId, decision, notes);
+        emergencyResponseAgent.humanDecision(eventId, decision, notes);
+        return ResponseEntity.ok(ApiResponse.success("人工决策已处理"));
+    }
+
+    /**
+     * 人工修正风险等级接口
+     * PUT /api/emergency/correct-risk-level
+     *
+     * @param eventId         事件ID
+     * @param correctedLevel  修正后的风险等级（MINOR / MODERATE / CRITICAL）
+     * @param reason          修正原因
+     */
+    @PutMapping("/correct-risk-level")
+    public ResponseEntity<ApiResponse<String>> correctRiskLevel(
+            @RequestParam String eventId,
+            @RequestParam String correctedLevel,
+            @RequestParam String reason) {
+
+        log.info("人工修正风险等级: eventId={}, correctedLevel={}, reason={}", eventId, correctedLevel, reason);
+        EmergencyResponseAgent.RiskLevel level = EmergencyResponseAgent.RiskLevel.valueOf(correctedLevel);
+        emergencyResponseAgent.correctRiskLevel(eventId, level, reason);
+        return ResponseEntity.ok(ApiResponse.success("风险等级已修正"));
+    }
+
+    /**
+     * 获取当前告警队列状态
+     * GET /api/emergency/queue
+     */
+    @GetMapping("/queue")
+    public ResponseEntity<ApiResponse<List<EmergencyResponseAgent.AlertEvent>>> getQueueSnapshot() {
+        List<EmergencyResponseAgent.AlertEvent> queue = emergencyResponseAgent.getQueueSnapshot();
+        return ResponseEntity.ok(ApiResponse.success(queue));
+    }
+
+    /**
+     * 获取在线工作人员数量
+     * GET /api/emergency/staff/count
+     */
+    @GetMapping("/staff/count")
+    public ResponseEntity<ApiResponse<Integer>> getOnlineStaffCount() {
+        int count = staffNotificationAgent.getOnlineStaffCount();
+        return ResponseEntity.ok(ApiResponse.success(count));
     }
 }

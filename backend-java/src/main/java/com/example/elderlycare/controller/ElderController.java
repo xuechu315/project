@@ -2,7 +2,9 @@ package com.example.elderlycare.controller;
 
 import com.example.elderlycare.dto.response.ApiResponse;
 import com.example.elderlycare.entity.Elder;
+import com.example.elderlycare.entity.ElderDoctorRelation;
 import com.example.elderlycare.entity.User;
+import com.example.elderlycare.repository.ElderDoctorRelationRepository;
 import com.example.elderlycare.service.ElderService;
 import com.example.elderlycare.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,8 @@ public class ElderController {
     private ElderService elderService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ElderDoctorRelationRepository elderDoctorRelationRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getAll(
@@ -48,18 +52,45 @@ public class ElderController {
     }
 
     /**
+     * 根据ID获取单个老人信息
+     * GET /api/elders/{id}
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getById(@PathVariable Integer id) {
+        Optional<Elder> elderOpt = elderService.getElderById(id);
+        if (elderOpt.isPresent()) {
+            Elder e = elderOpt.get();
+            Map<String, Object> item = buildElderMap(e);
+            return ResponseEntity.ok(ApiResponse.success(item));
+        } else {
+            return ResponseEntity.ok(ApiResponse.success(null));
+        }
+    }
+
+    /**
      * 根据医生ID获取签约老人列表
      * GET /api/elders/doctor/{doctorId}
-     *
-     * 注意：如果暂时没有医生-老人关联表，返回所有老人作为演示
      */
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getByDoctorId(@PathVariable Integer doctorId) {
-        // TODO: 后续根据医生-老人关联表查询
-        // 当前暂时返回所有老人列表作为演示
+        // 根据医生-老人关联表查询
+        List<ElderDoctorRelation> relations = elderDoctorRelationRepository.findByDoctorId(doctorId);
+        
+        if (relations.isEmpty()) {
+            return ResponseEntity.ok(ApiResponse.success(List.of()));
+        }
+        
+        // 获取关联的老人ID列表
+        List<Integer> elderIds = relations.stream()
+                .map(ElderDoctorRelation::getElderId)
+                .collect(Collectors.toList());
+        
+        // 查询这些老人的详细信息
         List<Map<String, Object>> list = elderService.getAllElders().stream()
+                .filter(e -> elderIds.contains(e.getId()))
                 .map(this::buildElderMap)
                 .collect(Collectors.toList());
+        
         return ResponseEntity.ok(ApiResponse.success(list));
     }
 
