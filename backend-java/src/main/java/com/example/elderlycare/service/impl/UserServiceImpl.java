@@ -1,10 +1,10 @@
 package com.example.elderlycare.service.impl;
 
 import com.example.elderlycare.dto.response.UserResponse;
-import com.example.elderlycare.entity.User;
+import com.example.elderlycare.entity.*;
 import com.example.elderlycare.exception.DuplicateResourceException;
 import com.example.elderlycare.exception.ResourceNotFoundException;
-import com.example.elderlycare.repository.UserRepository;
+import com.example.elderlycare.repository.*;
 import com.example.elderlycare.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,6 +24,18 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private ElderRepository elderRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+    @Autowired
+    private ElderFamilyRepository elderFamilyRepository;
+
+    @Autowired
+    private ElderDoctorRelationRepository elderDoctorRelationRepository;
 
     @Override
     public UserResponse login(String username, String password) {
@@ -57,6 +70,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("用户", "id", userId));
         return convertToResponse(user);
+    }
+
+    @Override
+    public User getUserEntityById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("用户", "id", userId));
     }
 
     @Override
@@ -117,9 +136,6 @@ public class UserServiceImpl implements UserService {
         if (userDetails.getName() != null) user.setName(userDetails.getName());
         if (userDetails.getPhone() != null) user.setPhone(userDetails.getPhone());
         if (userDetails.getUserType() != null) user.setUserType(userDetails.getUserType());
-        if (userDetails.getAge() != null) user.setAge(userDetails.getAge());
-        if (userDetails.getGender() != null) user.setGender(userDetails.getGender());
-        if (userDetails.getBloodType() != null) user.setBloodType(userDetails.getBloodType());
 
         return userRepository.save(user);
     }
@@ -133,6 +149,83 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional
+    public User createUserWithRelations(User user, Map<String, Object> roleData) {
+        // 1. 创建 User 记录
+        User saved = createUser(user);
+
+        String role = (String) roleData.getOrDefault("role", "elder");
+
+        // 2. 根据角色创建关联记录
+        if ("doctor".equals(role)) {
+            Doctor doctor = new Doctor();
+            doctor.setUserId(saved.getId());
+            doctor.setName(user.getName());
+            doctor.setPhone(user.getPhone());
+            doctorRepository.save(doctor);
+
+        } else if ("family".equals(role)) {
+            Object elderIdsObj = roleData.get("elderIds");
+            if (elderIdsObj instanceof List) {
+                for (Object eid : (List<?>) elderIdsObj) {
+                    if (eid != null) {
+                        ElderFamily ef = new ElderFamily();
+                        ef.setUserId(saved.getId());
+                        ef.setElderId(((Number) eid).intValue());
+                        ef.setName(user.getName());
+                        elderFamilyRepository.save(ef);
+                    }
+                }
+            } else {
+                Object elderIdObj = roleData.get("elderId");
+                if (elderIdObj != null) {
+                    ElderFamily ef = new ElderFamily();
+                    ef.setUserId(saved.getId());
+                    ef.setElderId(((Number) elderIdObj).intValue());
+                    ef.setName(user.getName());
+                    elderFamilyRepository.save(ef);
+                }
+            }
+
+        } else if ("elder".equals(role)) {
+            // 创建 elder 记录
+            Elder elder = new Elder();
+            elder.setUserId(saved.getId());
+            if (roleData.get("age") != null) elder.setAge(((Number) roleData.get("age")).intValue());
+            if (roleData.get("gender") != null) elder.setGender((String) roleData.get("gender"));
+            if (roleData.get("bloodType") != null) elder.setBloodType((String) roleData.get("bloodType"));
+            elderRepository.save(elder);
+
+            // 同步绑定家属（通过 familyUserIds）
+            Object familyUserIdsObj = roleData.get("familyUserIds");
+            if (familyUserIdsObj instanceof List) {
+                for (Object fuId : (List<?>) familyUserIdsObj) {
+                    if (fuId != null) {
+                        userRepository.findById(((Number) fuId).intValue()).ifPresent(familyUser -> {
+                            ElderFamily ef = new ElderFamily();
+                            ef.setUserId(((Number) fuId).intValue());
+                            ef.setElderId(elder.getId());
+                            ef.setName(familyUser.getName());
+                            elderFamilyRepository.save(ef);
+                        });
+                    }
+                }
+            }
+
+            // 同步绑定医生
+            Object doctorIdObj = roleData.get("doctorId");
+            if (doctorIdObj != null) {
+                ElderDoctorRelation relation = new ElderDoctorRelation();
+                relation.setElderId(elder.getId());
+                relation.setDoctorId(((Number) doctorIdObj).intValue());
+                elderDoctorRelationRepository.save(relation);
+            }
+        }
+
+        return saved;
+    }
+
     private UserResponse convertToResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
@@ -140,12 +233,19 @@ public class UserServiceImpl implements UserService {
         response.setName(user.getName());
         response.setUserType(user.getUserType().name());
         response.setPhone(user.getPhone());
-        response.setAge(user.getAge());
-        response.setGender(user.getGender());
-        response.setBloodType(user.getBloodType());
-        response.setHeight(user.getHeight());
-        response.setWeight(user.getWeight());
         response.setCreatedAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : null);
+
+        // 对老人用户，从 elder 表补充身体数据（user 表已不再存储这些字段）
+        if (user.getUserType() == User.UserType.elder) {
+            elderRepository.findByUserId(user.getId()).ifPresent(elder -> {
+                response.setAge(elder.getAge());
+                response.setGender(elder.getGender());
+                response.setBloodType(elder.getBloodType());
+                response.setHeight(elder.getHeight());
+                response.setWeight(elder.getWeight());
+            });
+        }
+
         return response;
     }
 }

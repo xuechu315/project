@@ -16,6 +16,7 @@ public class LoginResponse {
     private String name;
     private String userType;
     private String phone;
+    private String token;
 
     public static LoginResponse of(UserResponse user) {
         LoginResponse response = new LoginResponse();

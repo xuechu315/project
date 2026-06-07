@@ -3,8 +3,12 @@ package com.example.elderlycare.controller;
 import com.example.elderlycare.dto.response.ApiResponse;
 import com.example.elderlycare.entity.Doctor;
 import com.example.elderlycare.entity.Elder;
-import com.example.elderlycare.entity.ElderFamilyMember;
-import com.example.elderlycare.service.*;
+import com.example.elderlycare.entity.ElderFamily;
+import com.example.elderlycare.service.ElderDoctorRelationService;
+import com.example.elderlycare.service.ElderFamilyService;
+import com.example.elderlycare.service.ElderService;
+import com.example.elderlycare.service.DoctorService;
+import com.example.elderlycare.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +25,7 @@ public class AdminController {
     @Autowired
     private ElderService elderService;
     @Autowired
-    private FamilyMemberService familyMemberService;
+    private ElderFamilyService elderFamilyService;
     @Autowired
     private DoctorService doctorService;
     @Autowired
@@ -42,13 +46,13 @@ public class AdminController {
             } catch (Exception e) {
                 item.put("name", "老人" + elder.getId());
             }
-            List<ElderFamilyMember> families = familyMemberService.getFamilyMembersByElderId(elder.getId());
+            List<ElderFamily> families = elderFamilyService.getFamilyMembersByElderId(elder.getId());
             item.put("familyMembers", families);
             item.put("doctorRelations", relationService.getRelationsByElderId(elder.getId()));
             elderList.add(item);
         }
 
-        List<ElderFamilyMember> allFamilies = familyMemberService.getAllFamilyMembers();
+        List<ElderFamily> allFamilies = elderFamilyService.getAllFamilyMembers();
         List<Doctor> allDoctors = doctorService.getAllDoctors();
 
         Map<String, Object> resp = new HashMap<>();

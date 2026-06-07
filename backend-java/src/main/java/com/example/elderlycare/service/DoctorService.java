@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface DoctorService {
     List<Doctor> getAllDoctors();
     Optional<Doctor> getDoctorById(Integer id);
+    Optional<Doctor> getDoctorByUserId(Integer userId);
     List<Doctor> getDoctorsByDepartment(String department);
     List<Doctor> searchDoctorsByName(String name);
     Doctor createDoctor(Doctor doctor);

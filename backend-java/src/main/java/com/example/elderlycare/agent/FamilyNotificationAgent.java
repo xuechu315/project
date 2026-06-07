@@ -1,13 +1,7 @@
 package com.example.elderlycare.agent;
 
-import com.example.elderlycare.entity.ContactRecord;
-import com.example.elderlycare.entity.Doctor;
-import com.example.elderlycare.entity.ElderDoctorRelation;
-import com.example.elderlycare.entity.FamilyMember;
-import com.example.elderlycare.repository.ContactRecordRepository;
-import com.example.elderlycare.repository.DoctorRepository;
-import com.example.elderlycare.repository.ElderDoctorRelationRepository;
-import com.example.elderlycare.repository.FamilyMemberRepository;
+import com.example.elderlycare.entity.*;
+import com.example.elderlycare.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +32,10 @@ public class FamilyNotificationAgent {
     private static final Logger log = LoggerFactory.getLogger(FamilyNotificationAgent.class);
 
     @Autowired
-    private FamilyMemberRepository familyMemberRepository;
+    private ElderFamilyRepository elderFamilyRepository;
+
+    @Autowired
+    private ElderRepository elderRepository;
 
     @Autowired
     private ElderDoctorRelationRepository elderDoctorRelationRepository;
@@ -48,6 +45,9 @@ public class FamilyNotificationAgent {
 
     @Autowired
     private ContactRecordRepository contactRecordRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // ==================== 对外通知方法 ====================
 
@@ -61,29 +61,40 @@ public class FamilyNotificationAgent {
      * @return 成功通知的家属数量
      */
     public int notifyFamily(Integer userId, String message, String type) {
-        List<FamilyMember> familyMembers = familyMemberRepository.findByUserId(userId);
+        // 通过老人用户ID查找老人记录
+        Elder elder = elderRepository.findByUserId(userId).orElse(null);
+        if (elder == null) {
+            log.warn("未找到老人记录: userId={}", userId);
+            return 0;
+        }
+
+        // 通过 elder.id 查询绑定的家属
+        List<ElderFamily> familyMembers = elderFamilyRepository.findByElderId(elder.getId());
         if (familyMembers.isEmpty()) {
             log.warn("老人 {} 未绑定任何家属，无法通知家属", userId);
             return 0;
         }
 
         int count = 0;
-        for (FamilyMember member : familyMembers) {
+        for (ElderFamily member : familyMembers) {
             try {
+                // 从 User 表查家属手机号（elder_family 表已去掉 phone 字段）
+                String familyPhone = userRepository.findById(member.getUserId())
+                        .map(User::getPhone).orElse("");
                 saveContactRecord(
                         userId,
-                        member.getFamilyId(),   // 使用家属的用户ID
+                        member.getUserId(),   // 家属的用户ID
                         type,
                         "sent",
                         message,
                         member.getName(),
-                        member.getPhone()
+                        familyPhone
                 );
-                log.info("已通知家属: userId={}, familyId={}, name={}, phone={}",
-                        userId, member.getFamilyId(), member.getName(), member.getPhone());
+                log.info("已通知家属: userId={}, familyUserId={}, name={}, phone={}",
+                        userId, member.getUserId(), member.getName(), familyPhone);
                 count++;
             } catch (Exception e) {
-                log.error("通知家属失败: userId={}, familyMemberId={}, error={}",
+                log.error("通知家属失败: userId={}, elderFamilyId={}, error={}",
                         userId, member.getId(), e.getMessage());
             }
         }
@@ -100,7 +111,14 @@ public class FamilyNotificationAgent {
      * @return 成功通知的医生数量
      */
     public int notifyCommunityDoctor(Integer userId, String message, String type) {
-        List<ElderDoctorRelation> relations = elderDoctorRelationRepository.findByElderId(userId);
+        // 通过老人用户ID查找老人记录
+        Elder elder = elderRepository.findByUserId(userId).orElse(null);
+        if (elder == null) {
+            log.warn("未找到老人记录: userId={}", userId);
+            return 0;
+        }
+
+        List<ElderDoctorRelation> relations = elderDoctorRelationRepository.findByElderId(elder.getId());
         if (relations.isEmpty()) {
             log.warn("老人 {} 未绑定社区医生，无法通知医生", userId);
             return 0;

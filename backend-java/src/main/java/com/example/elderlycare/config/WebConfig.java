@@ -19,35 +19,29 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 尝试多个可能的路径
-        String[] possiblePaths = {
-            "../frontend/",                    // 从 backend-java 目录运行
-            "../../frontend/",                 // 从 target 目录运行
-            "c:/Users/yangjingyi/Desktop/three/threetwo/软件工程/project-feature-all-system-integrate/frontend/"  // 绝对路径
-        };
-        
+        // ============ 自动查找 frontend 目录（任何人都能用，无需改路径）============
+        // 从当前工作目录开始，逐级向上找 frontend 文件夹，最多找 5 级
         String foundPath = null;
-        for (String p : possiblePaths) {
-            Path path = Paths.get(p).toAbsolutePath().normalize();
-            System.out.println("【WebConfig】检查路径: " + path);
-            if (Files.isDirectory(path)) {
-                foundPath = "file:" + path.toString().replace("\\", "/") + "/";
+        Path startDir = Paths.get("").toAbsolutePath().normalize();
+
+        for (int level = 0; level < 5; level++) {
+            Path candidate = startDir.resolve("frontend");
+            System.out.println("【WebConfig】检查路径: " + candidate);
+            if (Files.isDirectory(candidate)) {
+                foundPath = "file:" + candidate.toString().replace("\\", "/") + "/";
                 System.out.println("【WebConfig】找到前端目录: " + foundPath);
                 break;
             }
+            // 没找到则向上一级
+            startDir = startDir.getParent();
+            if (startDir == null) break;
         }
-        
+
         if (foundPath == null) {
             System.out.println("【WebConfig】未找到前端目录，静态资源映射失败");
             return;
         }
 
-        // 注册静态资源处理器 - 映射所有前端文件
-        // 访问 http://localhost:8080/doctor/** 会映射到 frontend/doctor/**
-        // 访问 http://localhost:8080/admin/** 会映射到 frontend/admin/**
-        // 访问 http://localhost:8080/js/** 会映射到 frontend/js/**
-        // 访问 http://localhost:8080/*.html 会映射到 frontend/*.html
-        
         registry.addResourceHandler("/**")
                 .addResourceLocations(foundPath)
                 .setCachePeriod(0);

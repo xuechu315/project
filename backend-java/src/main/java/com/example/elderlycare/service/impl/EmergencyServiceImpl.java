@@ -17,6 +17,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,9 @@ public class EmergencyServiceImpl implements EmergencyService {
 
     private static final Logger log = LoggerFactory.getLogger(EmergencyServiceImpl.class);
 
-    private static final String API_KEY = "sk-55a524dcba5e4f55a9303acc13ad841a";
+    @Value("${deepseek.api-key}")
+    private String apiKey;
+
     private static final String BASE_URL = "https://api.deepseek.com/v1/chat/completions";
     private static final String MODEL = "deepseek-v4-flash";
 
@@ -255,7 +258,7 @@ public class EmergencyServiceImpl implements EmergencyService {
             HttpPost httpPost = new HttpPost(BASE_URL);
 
             httpPost.setHeader("Content-Type", "application/json");
-            httpPost.setHeader("Authorization", "Bearer " + API_KEY);
+            httpPost.setHeader("Authorization", "Bearer " + apiKey);
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", MODEL);

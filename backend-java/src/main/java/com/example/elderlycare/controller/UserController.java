@@ -4,18 +4,16 @@ import com.example.elderlycare.dto.request.LoginRequest;
 import com.example.elderlycare.dto.response.ApiResponse;
 import com.example.elderlycare.dto.response.LoginResponse;
 import com.example.elderlycare.dto.response.UserResponse;
-import com.example.elderlycare.entity.Doctor;
-import com.example.elderlycare.entity.Elder;
-import com.example.elderlycare.entity.ElderFamilyMember;
+import com.example.elderlycare.entity.ElderFamily;
 import com.example.elderlycare.entity.User;
-import com.example.elderlycare.service.DoctorService;
-import com.example.elderlycare.service.ElderService;
-import com.example.elderlycare.service.FamilyMemberService;
+import com.example.elderlycare.security.TokenManager;
+import com.example.elderlycare.service.ElderFamilyService;
 import com.example.elderlycare.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -31,13 +29,10 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private DoctorService doctorService;
+    private ElderFamilyService elderFamilyService;
 
     @Autowired
-    private ElderService elderService;
-
-    @Autowired
-    private FamilyMemberService familyMemberService;
+    private TokenManager tokenManager;
 
     /**
      * 用户登录
@@ -46,8 +41,18 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
         try {
-            UserResponse user = userService.login(request.getUsername(), request.getPassword());
-            return ResponseEntity.ok(ApiResponse.success(LoginResponse.of(user)));
+            UserResponse userResponse = userService.login(request.getUsername(), request.getPassword());
+
+            // 从数据库获取完整 User 实体以生成 Token
+            User user = userService.getUserEntityById(userResponse.getId());
+
+            // 生成 Token
+            String token = tokenManager.createToken(user);
+
+            LoginResponse response = LoginResponse.of(userResponse);
+            response.setToken(token);
+
+            return ResponseEntity.ok(ApiResponse.success(response));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error(401, "用户名或密码错误"));
@@ -55,12 +60,19 @@ public class UserController {
     }
 
     /**
-     * 验证用户
+     * 验证用户（从 Token 中获取当前用户）
      */
     @GetMapping("/verify")
-    public ResponseEntity<ApiResponse<LoginResponse>> verify() {
+    public ResponseEntity<ApiResponse<LoginResponse>> verify(Authentication authentication) {
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            User user = (User) authentication.getPrincipal();
+            UserResponse u = userService.getUserById(user.getId());
+            return ResponseEntity.ok(ApiResponse.success(LoginResponse.of(u)));
+        }
+        // 没有Token时回退
         UserResponse user = userService.verify();
-        return ResponseEntity.ok(ApiResponse.success(LoginResponse.of(user)));
+        LoginResponse resp = LoginResponse.of(user);
+        return ResponseEntity.ok(ApiResponse.success(resp));
     }
 
     /**
@@ -125,51 +137,8 @@ public class UserController {
             user.setPhone(phone);
             user.setUserType(User.UserType.valueOf(role));
 
-            User created = userService.createUser(user);
-
-            // 根据角色自动创建关联记录（管理端批量创建优化）
-            if ("doctor".equals(role)) {
-                Doctor d = new Doctor();
-                d.setUserId(created.getId());
-                d.setName(name);
-                d.setPhone(phone);
-                doctorService.createDoctor(d);
-            } else if ("family".equals(role)) {
-                String fName = name;
-                String fPhone = phone;
-                Object elderIdsObj = body.get("elderIds");
-                if (elderIdsObj instanceof List) {
-                    // 支持多 elderIds（每个创建一个 family_member 行）
-                    for (Object eid : (List<?>) elderIdsObj) {
-                        if (eid != null) {
-                            ElderFamilyMember f = new ElderFamilyMember();
-                            f.setUserId(created.getId());
-                            f.setElderId(((Number) eid).intValue());
-                            f.setName(fName);
-                            f.setPhone(fPhone);
-                            familyMemberService.createFamilyMember(f);
-                        }
-                    }
-                } else {
-                    // 兼容单 elderId
-                    ElderFamilyMember f = new ElderFamilyMember();
-                    f.setUserId(created.getId());
-                    Object elderIdObj = body.get("elderId");
-                    if (elderIdObj != null) {
-                        f.setElderId(((Number) elderIdObj).intValue());
-                    }
-                    f.setName(fName);
-                    f.setPhone(fPhone);
-                    familyMemberService.createFamilyMember(f);
-                }
-            } else if ("elder".equals(role)) {
-                Elder e = new Elder();
-                e.setUserId(created.getId());
-                if (body.get("age") != null) e.setAge(((Number) body.get("age")).intValue());
-                if (body.get("gender") != null) e.setGender((String) body.get("gender"));
-                if (body.get("bloodType") != null) e.setBloodType((String) body.get("bloodType"));
-                elderService.createElder(e);
-            }
+            // 使用统一 Service 方法在事务内创建用户+关联表
+            User created = userService.createUserWithRelations(user, body);
 
             return ResponseEntity.ok(ApiResponse.success(Map.of("userId", created.getId())));
         } catch (Exception ex) {
@@ -219,7 +188,7 @@ public class UserController {
             String role = (String) body.get("role");
             if ("family".equals(role) && (body.containsKey("elderIds") || body.containsKey("elderId"))) {
                 // 获取该家属当前所有绑定行
-                List<ElderFamilyMember> existingBinds = familyMemberService.getFamilyMemberByUserId(id);
+                List<ElderFamily> existingBinds = elderFamilyService.getFamilyMemberByUserId(id);
                 // 确定新的 elderId 列表
                 List<Integer> newElderIds = new ArrayList<>();
                 if (body.containsKey("elderIds")) {
@@ -231,21 +200,20 @@ public class UserController {
                     if (elderIdObj != null) newElderIds.add(((Number) elderIdObj).intValue());
                 }
                 // 删除不再绑定的行
-                for (ElderFamilyMember fm : existingBinds) {
-                    if (!newElderIds.contains(fm.getElderId())) {
-                        familyMemberService.deleteFamilyMember(fm.getId());
+                for (ElderFamily ef : existingBinds) {
+                    if (!newElderIds.contains(ef.getElderId())) {
+                        elderFamilyService.deleteFamilyMember(ef.getId());
                     }
                 }
                 // 新增绑定行
                 for (Integer elderId : newElderIds) {
-                    boolean alreadyBound = existingBinds.stream().anyMatch(fm -> elderId.equals(fm.getElderId()));
+                    boolean alreadyBound = existingBinds.stream().anyMatch(ef -> elderId.equals(ef.getElderId()));
                     if (!alreadyBound) {
-                        ElderFamilyMember newFm = new ElderFamilyMember();
-                        newFm.setUserId(id);
-                        newFm.setElderId(elderId);
-                        newFm.setName((String) body.get("name"));
-                        newFm.setPhone((String) body.get("phone"));
-                        familyMemberService.createFamilyMember(newFm);
+                        ElderFamily newEf = new ElderFamily();
+                        newEf.setUserId(id);
+                        newEf.setElderId(elderId);
+                        newEf.setName((String) body.get("name"));
+                        elderFamilyService.createFamilyMember(newEf);
                     }
                 }
             }

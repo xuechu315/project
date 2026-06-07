@@ -1,12 +1,16 @@
 package com.example.elderlycare.controller;
 
 import com.example.elderlycare.dto.response.ApiResponse;
+import com.example.elderlycare.entity.Doctor;
 import com.example.elderlycare.entity.Elder;
 import com.example.elderlycare.entity.ElderDoctorRelation;
 import com.example.elderlycare.entity.User;
 import com.example.elderlycare.repository.ElderDoctorRelationRepository;
+import com.example.elderlycare.service.DoctorService;
 import com.example.elderlycare.service.ElderService;
 import com.example.elderlycare.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,10 +25,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/elders")
 public class ElderController {
 
+    private static final Logger log = LoggerFactory.getLogger(ElderController.class);
+
     @Autowired
     private ElderService elderService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private DoctorService doctorService;
     @Autowired
     private ElderDoctorRelationRepository elderDoctorRelationRepository;
 
@@ -68,13 +76,22 @@ public class ElderController {
     }
 
     /**
-     * 根据医生ID获取签约老人列表
-     * GET /api/elders/doctor/{doctorId}
+     * 根据医生用户ID获取签约老人列表
+     * 前端传入的是 doctor 的 user_id（user 表主键），后台先转为 doctor 表主键再查询
+     * GET /api/elders/doctor/{doctorUserId}
      */
-    @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getByDoctorId(@PathVariable Integer doctorId) {
+    @GetMapping("/doctor/{doctorUserId}")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getByDoctorId(@PathVariable Integer doctorUserId) {
+        // 通过 user_id 查找 doctor 记录，获取 doctor 表的主键 id
+        Optional<Doctor> doctorOpt = doctorService.getDoctorByUserId(doctorUserId);
+        if (doctorOpt.isEmpty()) {
+            log.warn("未找到医生记录: userId={}", doctorUserId);
+            return ResponseEntity.ok(ApiResponse.success(List.of()));
+        }
+        Integer doctorTableId = doctorOpt.get().getId();
+        
         // 根据医生-老人关联表查询
-        List<ElderDoctorRelation> relations = elderDoctorRelationRepository.findByDoctorId(doctorId);
+        List<ElderDoctorRelation> relations = elderDoctorRelationRepository.findByDoctorId(doctorTableId);
         
         if (relations.isEmpty()) {
             return ResponseEntity.ok(ApiResponse.success(List.of()));

@@ -26,7 +26,7 @@ public class SOSRecord {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "location", length = 100)
+    @Column(name = "location", length = 200)
     private String location;
 
     @Enumerated(EnumType.STRING)

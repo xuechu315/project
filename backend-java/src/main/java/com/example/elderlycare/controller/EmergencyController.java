@@ -1,7 +1,6 @@
 package com.example.elderlycare.controller;
 
 import com.example.elderlycare.agent.EmergencyResponseAgent;
-import com.example.elderlycare.agent.StaffNotificationAgent;
 import com.example.elderlycare.dto.request.EmergencyAssessmentRequest;
 import com.example.elderlycare.dto.request.EmergencyDispatchRequest;
 import com.example.elderlycare.dto.request.RoutePlanningRequest;
@@ -32,9 +31,6 @@ public class EmergencyController {
 
     @Autowired
     private EmergencyResponseAgent emergencyResponseAgent;
-
-    @Autowired
-    private StaffNotificationAgent staffNotificationAgent;
 
     /**
      * 风险评估接口
@@ -192,12 +188,12 @@ public class EmergencyController {
     }
 
     /**
-     * 获取在线工作人员数量
+     * 获取待人工决策事件数量
      * GET /api/emergency/staff/count
      */
     @GetMapping("/staff/count")
     public ResponseEntity<ApiResponse<Integer>> getOnlineStaffCount() {
-        int count = staffNotificationAgent.getOnlineStaffCount();
+        int count = emergencyResponseAgent.getPendingEvents().size();
         return ResponseEntity.ok(ApiResponse.success(count));
     }
 }

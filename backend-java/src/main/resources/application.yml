@@ -21,6 +21,9 @@ spring:
     init:
       mode: never
 
+deepseek:
+  api-key: sk-55a524dcba5e4f55a9303acc13ad841a
+
 logging:
   level:
     root: INFO

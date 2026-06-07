@@ -11,12 +11,12 @@ import java.util.List;
  */
 @Repository
 public interface MedicalHistoryRepository extends JpaRepository<MedicalHistory, Integer> {
-    
+
     /**
      * 根据老人ID查询既往病史列表
      */
     List<MedicalHistory> findByElderId(Integer elderId);
-    
+
     /**
      * 根据老人ID删除所有既往病史
      */

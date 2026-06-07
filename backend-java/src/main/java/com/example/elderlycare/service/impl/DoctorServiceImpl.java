@@ -28,6 +28,11 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    public Optional<Doctor> getDoctorByUserId(Integer userId) {
+        return doctorRepository.findByUserId(userId);
+    }
+
+    @Override
     public List<Doctor> getDoctorsByDepartment(String department) {
         return doctorRepository.findByDepartment(department);
     }

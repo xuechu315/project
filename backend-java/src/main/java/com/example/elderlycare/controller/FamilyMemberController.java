@@ -1,8 +1,8 @@
 package com.example.elderlycare.controller;
 
 import com.example.elderlycare.dto.response.ApiResponse;
-import com.example.elderlycare.entity.ElderFamilyMember;
-import com.example.elderlycare.service.FamilyMemberService;
+import com.example.elderlycare.entity.ElderFamily;
+import com.example.elderlycare.service.ElderFamilyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,38 +17,38 @@ import java.util.List;
 public class FamilyMemberController {
 
     @Autowired
-    private FamilyMemberService familyMemberService;
+    private ElderFamilyService elderFamilyService;
 
     @GetMapping("/elder/{elderId}")
-    public ResponseEntity<ApiResponse<List<ElderFamilyMember>>> getFamilyMembersByElderId(@PathVariable Integer elderId) {
-        return ResponseEntity.ok(ApiResponse.success(familyMemberService.getFamilyMembersByElderId(elderId)));
+    public ResponseEntity<ApiResponse<List<ElderFamily>>> getFamilyMembersByElderId(@PathVariable Integer elderId) {
+        return ResponseEntity.ok(ApiResponse.success(elderFamilyService.getFamilyMembersByElderId(elderId)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ElderFamilyMember>> getFamilyMemberById(@PathVariable Integer id) {
-        return familyMemberService.getFamilyMemberById(id)
+    public ResponseEntity<ApiResponse<ElderFamily>> getFamilyMemberById(@PathVariable Integer id) {
+        return elderFamilyService.getFamilyMemberById(id)
                 .map(m -> ResponseEntity.ok(ApiResponse.success(m)))
                 .orElse(ResponseEntity.ok(ApiResponse.error(404, "家属成员不存在")));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ElderFamilyMember>>> getAllFamilyMembers() {
-        return ResponseEntity.ok(ApiResponse.success(familyMemberService.getAllFamilyMembers()));
+    public ResponseEntity<ApiResponse<List<ElderFamily>>> getAllFamilyMembers() {
+        return ResponseEntity.ok(ApiResponse.success(elderFamilyService.getAllFamilyMembers()));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ElderFamilyMember>> createFamilyMember(@RequestBody ElderFamilyMember familyMember) {
-        return ResponseEntity.ok(ApiResponse.success(familyMemberService.createFamilyMember(familyMember)));
+    public ResponseEntity<ApiResponse<ElderFamily>> createFamilyMember(@RequestBody ElderFamily familyMember) {
+        return ResponseEntity.ok(ApiResponse.success(elderFamilyService.createFamilyMember(familyMember)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ElderFamilyMember>> updateFamilyMember(@PathVariable Integer id, @RequestBody ElderFamilyMember familyMember) {
-        return ResponseEntity.ok(ApiResponse.success(familyMemberService.updateFamilyMember(id, familyMember)));
+    public ResponseEntity<ApiResponse<ElderFamily>> updateFamilyMember(@PathVariable Integer id, @RequestBody ElderFamily familyMember) {
+        return ResponseEntity.ok(ApiResponse.success(elderFamilyService.updateFamilyMember(id, familyMember)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteFamilyMember(@PathVariable Integer id) {
-        familyMemberService.deleteFamilyMember(id);
+        elderFamilyService.deleteFamilyMember(id);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
